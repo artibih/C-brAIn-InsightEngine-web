@@ -1,0 +1,223 @@
+
+@use '../../../styles/brand' as *;
+
+:host {
+  display: inline-flex;
+}
+
+.llm-selector {
+  position: relative;
+  display: inline-flex;
+}
+
+.llm-selector__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 200px;
+  padding: 5px 10px;
+  border-radius: 16px;
+  background-color: $brand-gray-100;
+  border: none;
+  font-size: 11px;
+  font-weight: $font-weight-medium;
+  color: $brand-gray-600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color $transition-fast, color $transition-fast;
+
+  &:hover:not(:disabled) {
+    background-color: $brand-gray-200;
+    color: $brand-gray-700;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-accent-10);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.llm-selector__trigger-icon {
+  font-size: 12px;
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.llm-selector__trigger-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.llm-selector__chevron {
+  font-size: 9px;
+  color: $brand-gray-400;
+  transition: transform $transition-fast;
+  flex-shrink: 0;
+
+  &--open {
+    transform: rotate(180deg);
+  }
+}
+
+.llm-selector__trigger--locked {
+  cursor: default;
+
+  &:hover:not(:disabled) {
+    background-color: $brand-gray-100;
+    color: $brand-gray-600;
+  }
+}
+
+.llm-selector__lock {
+  font-size: 9px;
+  color: $brand-gray-400;
+  flex-shrink: 0;
+}
+
+.llm-selector__menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  width: 290px;
+  max-width: calc(100vw - 32px);
+  background-color: $brand-white;
+  border: 1px solid $brand-gray-200;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  padding: 6px;
+  z-index: $z-dropdown;
+  animation: llm-menu-in 150ms ease-out;
+}
+
+@keyframes llm-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.llm-selector__menu-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px 6px;
+  font-size: 11px;
+  font-weight: $font-weight-semibold;
+  color: $brand-gray-600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid $brand-gray-100;
+  margin-bottom: 4px;
+
+  i {
+    color: var(--color-accent);
+  }
+}
+
+.llm-selector__option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color $transition-fast;
+  text-align: left;
+  font: inherit;
+
+  &:hover {
+    background-color: $brand-gray-50;
+  }
+
+  &--active {
+    background-color: var(--color-accent-08);
+  }
+}
+
+.llm-selector__option-icon {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-accent-08);
+  color: var(--color-accent);
+  font-size: 15px;
+
+  .llm-selector__option--active & {
+    background-color: var(--color-accent);
+    color: $brand-white;
+  }
+}
+
+.llm-selector__option-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.llm-selector__option-name {
+  font-size: 12px;
+  font-weight: $font-weight-semibold;
+  color: $brand-gray-900;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.llm-selector__option-provider {
+  font-size: 10px;
+  font-weight: $font-weight-medium;
+  color: $brand-gray-500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.llm-selector__option-check {
+  flex: 0 0 auto;
+  font-size: 14px;
+  color: var(--color-accent);
+  align-self: center;
+}
+
+.llm-selector__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: calc(#{$z-dropdown} - 1);
+}
+
+@media (max-width: $breakpoint-md) {
+  .llm-selector__trigger {
+    max-width: 150px;
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  .llm-selector__menu {
+    width: calc(100vw - 32px);
+    max-width: 300px;
+  }
+}
+
+@media (max-width: $breakpoint-sm) {
+  .llm-selector__trigger {
+    padding: 3px 6px;
+    font-size: 9px;
+    border-radius: 12px;
+  }
+}

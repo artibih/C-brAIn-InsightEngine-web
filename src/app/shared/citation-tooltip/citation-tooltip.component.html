@@ -1,0 +1,141 @@
+<div
+  class="citation-tooltip"
+  [class.citation-tooltip--above]="isFlippedAbove"
+  *ngIf="isVisible && citation"
+  [style.left.px]="position.left"
+  [style.top.px]="position.top"
+  [style.bottom.px]="position.bottom"
+  [style.max-height.px]="position.maxHeight"
+>
+  <div class="citation-tooltip__header">
+    <span class="citation-tooltip__badge">[{{ citation.index }}]</span>
+    <button class="citation-tooltip__close" (click)="close.emit()">
+      <i class="bi bi-x"></i>
+    </button>
+  </div>
+
+  <div class="citation-tooltip__content">
+    <h4 class="citation-tooltip__title">{{ citation.title }}</h4>
+
+    <p class="citation-tooltip__meta">
+      <span class="citation-tooltip__authors">{{ formattedAuthors }}</span>
+      <span class="citation-tooltip__separator" *ngIf="citation.journal"
+        >|</span
+      >
+      <span class="citation-tooltip__journal" *ngIf="citation.journal">{{
+        citation.journal
+      }}</span>
+      <span class="citation-tooltip__year" *ngIf="citation.year"
+        >({{ citation.year }})</span
+      >
+    </p>
+
+    
+    <div class="citation-tooltip__highlight" *ngIf="citation.highlightText">
+      <div class="citation-tooltip__highlight-label">
+        <i class="bi bi-quote"></i>
+        <span>Cited passage:</span>
+      </div>
+      <blockquote class="citation-tooltip__highlight-text">
+        "{{ citation.highlightText | slice: 0 : 300
+        }}{{ citation.highlightText.length > 300 ? "..." : "" }}"
+      </blockquote>
+      <button
+        class="citation-tooltip__highlight-copy"
+        (click)="copyHighlightText()"
+        title="Copy cited text"
+      >
+        <i class="bi bi-clipboard"></i>
+      </button>
+    </div>
+
+    <p
+      class="citation-tooltip__abstract"
+      *ngIf="citation.abstract && !citation.highlightText"
+    >
+      {{ citation.abstract | slice: 0 : 200
+      }}{{ citation.abstract.length > 200 ? "..." : "" }}
+    </p>
+
+    <div class="citation-tooltip__relevance" *ngIf="citation.relevanceScore">
+      <span class="citation-tooltip__relevance-label">Relevance:</span>
+      <div class="citation-tooltip__relevance-bar">
+        <div
+          class="citation-tooltip__relevance-fill"
+          [style.width.%]="relevancePercentage"
+        ></div>
+      </div>
+      <span class="citation-tooltip__relevance-value"
+        >{{ relevancePercentage }}%</span
+      >
+    </div>
+  </div>
+
+  <div class="citation-tooltip__actions">
+    <ng-container *ngIf="canAccessReferences; else accessDenied">
+      
+      <button
+        class="citation-tooltip__action citation-tooltip__action--primary"
+        *ngIf="canOpenWithHighlight"
+        (click)="onOpenWithHighlight()"
+      >
+        <i class="bi bi-box-arrow-up-right"></i>
+        <span>View Source</span>
+      </button>
+
+      
+      <button
+        class="citation-tooltip__action citation-tooltip__action--primary"
+        *ngIf="
+          !canOpenWithHighlight &&
+          userType === 'cbrain' &&
+          citation.internalPdfUrl
+        "
+        (click)="onOpenPdf()"
+      >
+        <i class="bi bi-file-pdf"></i>
+        <span>Open PDF</span>
+      </button>
+
+      
+      <button
+        class="citation-tooltip__action citation-tooltip__action--paper"
+        *ngIf="canAccessReferences && citation.paperUrl"
+        [disabled]="isResolvingPaperUrl"
+        (click)="onOpenPaperUrl()"
+      >
+        <i
+          class="bi"
+          [class.bi-file-earmark-pdf]="!isResolvingPaperUrl"
+          [class.bi-arrow-repeat]="isResolvingPaperUrl"
+        ></i>
+        <span>{{ isResolvingPaperUrl ? "Opening…" : "View Paper" }}</span>
+      </button>
+
+      <button
+        class="citation-tooltip__action"
+        *ngIf="citation.doi || citation.pubmedId"
+        (click)="onOpenDoi()"
+      >
+        <i class="bi bi-box-arrow-up-right"></i>
+        <span>{{ citation.doi ? "DOI" : "PubMed" }}</span>
+      </button>
+
+      <button
+        class="citation-tooltip__action"
+        *ngIf="citation.doi"
+        (click)="copyDoiLink()"
+      >
+        <i class="bi bi-clipboard"></i>
+        <span>Copy Link</span>
+      </button>
+    </ng-container>
+
+    <ng-template #accessDenied>
+      <div class="citation-tooltip__access-denied">
+        <i class="bi bi-lock"></i>
+        <span>Your account does not have access to reference content.</span>
+      </div>
+    </ng-template>
+  </div>
+</div>

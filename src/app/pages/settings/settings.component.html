@@ -1,0 +1,131 @@
+<div class="settings-page">
+  
+  <div class="settings-header">
+    <button class="btn-back" (click)="goBack()">
+      <span class="btn-back-icon">&larr;</span>
+      Back
+    </button>
+
+    <h1 class="settings-title">Settings</h1>
+    <p class="settings-subtitle">Manage your preferences</p>
+  </div>
+
+  
+  
+  <div class="card">
+    <div class="change-pass-header">
+      <div>
+        <h2 class="card-title">Change Password</h2>
+        <p class="card-subtitle">Update your account password securely</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input
+          type="text"
+          class="form-input form-input-primary"
+          [ngModel]="email"
+          disabled
+          />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Current Password</label>
+
+        <div class="input-with-icon">
+          <input
+            [type]="showCurrent ? 'text' : 'password'"
+            class="form-input"
+            [(ngModel)]="currentPassword"
+            (ngModelChange)="validatePasswordForm()"
+            placeholder="Enter current password"
+            />
+          <button
+            type="button"
+            class="icon-btn"
+            (click)="showCurrent = !showCurrent"
+            [attr.aria-label]="showCurrent ? 'Hide password' : 'Show password'"
+            >
+            <i class="bi" [ngClass]="showCurrent ? 'bi-eye-slash' : 'bi-eye'"></i>
+          </button>
+        </div>
+
+        @if (touched && errors.currentPassword) {
+          <div class="field-error">
+            {{ errors.currentPassword }}
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">New Password</label>
+
+        <div class="input-with-icon">
+          <input
+            [type]="showNew ? 'text' : 'password'"
+            class="form-input"
+            [(ngModel)]="newPassword"
+            (ngModelChange)="validatePasswordForm()"
+            placeholder="Enter new password"
+            />
+          <button
+            type="button"
+            class="icon-btn"
+            (click)="showNew = !showNew"
+            [attr.aria-label]="showNew ? 'Hide password' : 'Show password'"
+            >
+            <i class="bi" [ngClass]="showNew ? 'bi-eye-slash' : 'bi-eye'"></i>
+          </button>
+        </div>
+
+        @if (touched && errors.newPassword) {
+          <div class="field-error">
+            {{ errors.newPassword }}
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Confirm New Password</label>
+
+        <div class="input-with-icon">
+          <input
+            [type]="showConfirm ? 'text' : 'password'"
+            class="form-input"
+            [(ngModel)]="confirmNewPassword"
+            (ngModelChange)="validatePasswordForm()"
+            placeholder="Confirm new password"
+            />
+          <button
+            type="button"
+            class="icon-btn"
+            (click)="showConfirm = !showConfirm"
+            [attr.aria-label]="showConfirm ? 'Hide password' : 'Show password'"
+            >
+            <i class="bi" [ngClass]="showConfirm ? 'bi-eye-slash' : 'bi-eye'"></i>
+          </button>
+        </div>
+
+        @if (touched && errors.confirmNewPassword) {
+          <div class="field-error">
+            {{ errors.confirmNewPassword }}
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="change-pass-actions">
+      <button
+        class="btn-primary"
+        (click)="updatePassword()"
+        [disabled]="savingPassword"
+        >
+        <i class="bi bi-shield-lock"></i>
+        {{ savingPassword ? 'Updating...' : 'Update Password' }}
+      </button>
+    </div>
+  </div>
+
+</div>

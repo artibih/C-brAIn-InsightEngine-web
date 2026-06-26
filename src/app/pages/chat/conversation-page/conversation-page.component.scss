@@ -1,0 +1,16 @@
+@use '../../../../styles/brand' as *;
+
+.tp-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  height: 100vh;
+}
+
+.tp-layout__sidebar {
+  border-right: 1px solid $brand-gray-200;
+  background: $brand-gray-50;
+}
+
+.tp-layout__content {
+  background: $brand-white;
+}

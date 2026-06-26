@@ -1,0 +1,22 @@
+@if (showIndicator) {
+  <div class="auto-save">
+    <div class="auto-save__inner">
+      <i class="bi bi-arrow-clockwise auto-save__icon"></i>
+      <span class="auto-save__text">Session restored</span>
+      <button
+        type="button"
+        class="auto-save__clear"
+        (click)="handleClearRestored()"
+        >
+        Clear
+      </button>
+      <button
+        type="button"
+        class="auto-save__close"
+        (click)="handleDismiss()"
+        >
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+  </div>
+}

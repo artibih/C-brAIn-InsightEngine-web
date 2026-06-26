@@ -1,0 +1,413 @@
+<div class="feedback-page">
+  
+  <div class="feedback-header">
+    <button class="btn-back" (click)="goHome()">
+      <i class="bi bi-arrow-left btn-back-icon"></i>
+      Back
+    </button>
+    <h1 class="feedback-title">Feedback</h1>
+    <p class="feedback-subtitle">Help us improve by sharing your experience</p>
+  </div>
+
+  
+  <div class="feedback-tabs">
+    <button
+      class="feedback-tab"
+      [class.feedback-tab--active]="activeTab === 'new'"
+      (click)="switchTab('new')"
+    >
+      <i class="bi bi-pencil-square"></i>
+      New Feedback
+    </button>
+    <button
+      class="feedback-tab"
+      [class.feedback-tab--active]="activeTab === 'history'"
+      (click)="switchTab('history')"
+    >
+      <i class="bi bi-clock-history"></i>
+      My Feedback
+    </button>
+  </div>
+
+  
+  @if (activeTab === 'history') {
+    <div class="history-section">
+      @if (historyLoading) {
+        <div class="history-loading">
+          <i class="bi bi-arrow-repeat spin"></i>
+          Loading your feedback...
+        </div>
+      } @else if (historyItems.length === 0) {
+        <div class="history-empty">
+          <i class="bi bi-chat-square-text history-empty__icon"></i>
+          <p class="history-empty__text">You haven't submitted any feedback yet.</p>
+          <tp-button variant="primary" size="sm" (buttonClick)="switchTab('new')">
+            Give Feedback
+          </tp-button>
+        </div>
+      } @else {
+        <div class="history-list">
+          @for (item of historyItems; track item.id) {
+            <div class="history-card" [class.history-card--expanded]="expandedItemId === item.id">
+              <button class="history-card__header" (click)="toggleExpand(item.id)">
+                <div class="history-card__meta">
+                  <span class="history-card__date">{{ item.createdAt | date:'mediumDate' }}</span>
+                  <span class="history-card__time">{{ item.createdAt | date:'shortTime' }}</span>
+                </div>
+                <div class="history-card__summary">
+                  <span class="history-card__rating" title="Would use again">
+                    <i class="bi bi-star-fill"></i>
+                    {{ item.wouldUseAgain ?? '-' }}/5
+                  </span>
+                  <span class="history-card__rating" title="Logic sound">
+                    <i class="bi bi-lightbulb"></i>
+                    {{ item.logicSound ?? '-' }}/5
+                  </span>
+                </div>
+                <i class="bi history-card__chevron" [class.bi-chevron-down]="expandedItemId !== item.id" [class.bi-chevron-up]="expandedItemId === item.id"></i>
+              </button>
+
+              @if (expandedItemId === item.id) {
+                <div class="history-card__body">
+                  <div class="history-section-group">
+                    <h4 class="history-section-title">System Outputs</h4>
+                    <div class="history-grid">
+                      <div class="history-field">
+                        <span class="history-field__label">Outputs understandable</span>
+                        <span class="history-field__value">{{ getLikertLabel(item.outputsUnderstandable) }}</span>
+                      </div>
+                      <div class="history-field">
+                        <span class="history-field__label">Statements correct</span>
+                        <span class="history-field__value">{{ getLikertLabel(item.statementsCorrect) }}</span>
+                      </div>
+                      <div class="history-field">
+                        <span class="history-field__label">Logic sound</span>
+                        <span class="history-field__value">{{ getLikertLabel(item.logicSound) }}</span>
+                      </div>
+                      <div class="history-field">
+                        <span class="history-field__label">Sources identifiable</span>
+                        <span class="history-field__value">{{ getLikertLabel(item.sourcesIdentifiable) }}</span>
+                      </div>
+                    </div>
+                    @if (item.incorrectClaims) {
+                      <div class="history-text-field">
+                        <span class="history-field__label">Incorrect claims</span>
+                        <p class="history-field__text">{{ item.incorrectClaims }}</p>
+                      </div>
+                    }
+                    @if (item.goodReasoningExample) {
+                      <div class="history-text-field">
+                        <span class="history-field__label">Good reasoning example</span>
+                        <p class="history-field__text">{{ item.goodReasoningExample }}</p>
+                      </div>
+                    }
+                    @if (item.poorReasoningExample) {
+                      <div class="history-text-field">
+                        <span class="history-field__label">Poor reasoning example</span>
+                        <p class="history-field__text">{{ item.poorReasoningExample }}</p>
+                      </div>
+                    }
+                  </div>
+
+                  <div class="history-section-group">
+                    <h4 class="history-section-title">User Interface</h4>
+                    <div class="history-grid">
+                      <div class="history-field">
+                        <span class="history-field__label">Tool familiarity</span>
+                        <span class="history-field__value">{{ getFamiliarityLabel(item.toolFamiliarity) }}</span>
+                      </div>
+                      <div class="history-field">
+                        <span class="history-field__label">Tool straightforward</span>
+                        <span class="history-field__value">{{ getLikertLabel(item.toolStraightforward) }}</span>
+                      </div>
+                      <div class="history-field">
+                        <span class="history-field__label">Would use again</span>
+                        <span class="history-field__value">{{ getLikertLabel(item.wouldUseAgain) }}</span>
+                      </div>
+                    </div>
+                    @if (item.experienceStandout) {
+                      <div class="history-text-field">
+                        <span class="history-field__label">Experience standout</span>
+                        <p class="history-field__text">{{ item.experienceStandout }}</p>
+                      </div>
+                    }
+                  </div>
+
+                  @if (item.toolComparison || item.additionalFeatures) {
+                    <div class="history-section-group">
+                      <h4 class="history-section-title">Additional</h4>
+                      @if (item.toolComparison) {
+                        <div class="history-text-field">
+                          <span class="history-field__label">Tool comparison</span>
+                          <p class="history-field__text">{{ item.toolComparison }}</p>
+                        </div>
+                      }
+                      @if (item.additionalFeatures) {
+                        <div class="history-text-field">
+                          <span class="history-field__label">Additional features</span>
+                          <p class="history-field__text">{{ item.additionalFeatures }}</p>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        
+        @if (historyTotalPages > 1) {
+          <div class="history-pagination">
+            <button
+              class="history-pagination__btn"
+              [disabled]="historyPage <= 1"
+              (click)="loadHistoryPage(historyPage - 1)"
+            >
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <span class="history-pagination__info">{{ historyPage }} / {{ historyTotalPages }}</span>
+            <button
+              class="history-pagination__btn"
+              [disabled]="historyPage >= historyTotalPages"
+              (click)="loadHistoryPage(historyPage + 1)"
+            >
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </div>
+        }
+      }
+    </div>
+  }
+
+  
+  @if (activeTab === 'new' && !submitted) {
+    
+    <div class="progress-bar">
+      @for (step of steps; track step.number) {
+        <div class="progress-step" [class.progress-step--active]="currentStep === step.number" [class.progress-step--completed]="currentStep > step.number">
+          <div class="progress-step__circle">
+            @if (currentStep > step.number) {
+              <i class="bi bi-check-lg"></i>
+            } @else {
+              {{ step.number }}
+            }
+          </div>
+          <span class="progress-step__label">{{ step.label }}</span>
+        </div>
+        @if (step.number < totalSteps) {
+          <div class="progress-line" [class.progress-line--completed]="currentStep > step.number"></div>
+        }
+      }
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      
+      @if (currentStep === 1) {
+        <div class="card">
+          <h2 class="card-title">System Outputs</h2>
+          <p class="card-subtitle">Scientific Quality & Reliability</p>
+
+          <tp-likert-scale
+            label="Outputs were understandable and interpretable"
+            formControlName="outputsUnderstandable"
+            [showError]="showStepErrors"
+          />
+          <tp-likert-scale
+            label="Statements were factually correct"
+            formControlName="statementsCorrect"
+            [showError]="showStepErrors"
+          />
+          <tp-likert-scale
+            label="The logic or explanation was scientifically sound"
+            formControlName="logicSound"
+            [showError]="showStepErrors"
+          />
+          <tp-likert-scale
+            label="I was able to identify supporting sources or citations"
+            formControlName="sourcesIdentifiable"
+            [showError]="showStepErrors"
+          />
+
+          <div class="form-group">
+            <label class="form-label">Where did you notice incorrect or unsupported claims?</label>
+            <textarea class="form-input form-textarea" [class.form-input--error]="isOverLimit('incorrectClaims')" formControlName="incorrectClaims" placeholder="Describe any issues you noticed..." rows="3" [attr.maxlength]="TEXT_MAX_LENGTH"></textarea>
+            <div class="form-hint">
+              <span class="char-count" [class.char-count--over]="isOverLimit('incorrectClaims')">{{ getCharCount('incorrectClaims') }}/{{ TEXT_MAX_LENGTH }}</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Example of good scientific reasoning or citation handling</label>
+            <textarea class="form-input form-textarea" [class.form-input--error]="isOverLimit('goodReasoningExample')" formControlName="goodReasoningExample" placeholder="Share a positive example..." rows="3" [attr.maxlength]="TEXT_MAX_LENGTH"></textarea>
+            <div class="form-hint">
+              <span class="char-count" [class.char-count--over]="isOverLimit('goodReasoningExample')">{{ getCharCount('goodReasoningExample') }}/{{ TEXT_MAX_LENGTH }}</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Example of poor reasoning or misinformation</label>
+            <textarea class="form-input form-textarea" [class.form-input--error]="isOverLimit('poorReasoningExample')" formControlName="poorReasoningExample" placeholder="Share an example that needs improvement..." rows="3" [attr.maxlength]="TEXT_MAX_LENGTH"></textarea>
+            <div class="form-hint">
+              <span class="char-count" [class.char-count--over]="isOverLimit('poorReasoningExample')">{{ getCharCount('poorReasoningExample') }}/{{ TEXT_MAX_LENGTH }}</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">What additional information would you have liked to see in the output?</label>
+            <textarea class="form-input form-textarea" [class.form-input--error]="isOverLimit('additionalInfoDesired')" formControlName="additionalInfoDesired" placeholder="What was missing..." rows="3" [attr.maxlength]="TEXT_MAX_LENGTH"></textarea>
+            <div class="form-hint">
+              <span class="char-count" [class.char-count--over]="isOverLimit('additionalInfoDesired')">{{ getCharCount('additionalInfoDesired') }}/{{ TEXT_MAX_LENGTH }}</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">What additional testing data would help you trust the output of these tools?</label>
+            <textarea class="form-input form-textarea" [class.form-input--error]="isOverLimit('additionalTestingData')" formControlName="additionalTestingData" placeholder="What would increase your confidence..." rows="3" [attr.maxlength]="TEXT_MAX_LENGTH"></textarea>
+            <div class="form-hint">
+              <span class="char-count" [class.char-count--over]="isOverLimit('additionalTestingData')">{{ getCharCount('additionalTestingData') }}/{{ TEXT_MAX_LENGTH }}</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      
+      @if (currentStep === 2) {
+        <div class="card">
+          <h2 class="card-title">User Interface</h2>
+          <p class="card-subtitle">Usability & Experience</p>
+
+          <div class="form-group">
+            <label class="form-label">How familiar are you with these types of tools?</label>
+            <select class="form-input form-select" formControlName="toolFamiliarity">
+              <option [ngValue]="null" disabled>Select your familiarity level</option>
+              @for (option of familiarityOptions; track option.value) {
+                <option [ngValue]="option.value">{{ option.label }}</option>
+              }
+            </select>
+            @if (showStepErrors && !form.get('toolFamiliarity')?.value) {
+              <p class="field-error">Please select a familiarity level</p>
+            }
+          </div>
+
+          <tp-likert-scale
+            label="The tool was straightforward to access and operate"
+            formControlName="toolStraightforward"
+            [showError]="showStepErrors"
+          />
+
+          <div class="form-group">
+            <label class="form-label">What stood out most (good or bad) about the overall experience using this tool?</label>
+            <textarea class="form-input form-textarea" [class.form-input--error]="isOverLimit('experienceStandout')" formControlName="experienceStandout" placeholder="Share your most notable experience..." rows="3" [attr.maxlength]="TEXT_MAX_LENGTH"></textarea>
+            <div class="form-hint">
+              <span class="char-count" [class.char-count--over]="isOverLimit('experienceStandout')">{{ getCharCount('experienceStandout') }}/{{ TEXT_MAX_LENGTH }}</span>
+            </div>
+          </div>
+
+          <tp-likert-scale
+            label="I would use this tool again for my own research"
+            formControlName="wouldUseAgain"
+            [showError]="showStepErrors"
+          />
+        </div>
+      }
+
+      
+      @if (currentStep === 3) {
+        <div class="card">
+          <h2 class="card-title">Your Details</h2>
+          <p class="card-subtitle">User Input & Context Capture</p>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Email *</label>
+              <input class="form-input" type="email" formControlName="email" placeholder="your@email.com" />
+              @if (showStepErrors && form.get('email')?.invalid && form.get('email')?.touched) {
+                <p class="field-error">
+                  @if (form.get('email')?.hasError('required')) {
+                    Email is required
+                  } @else {
+                    Please enter a valid email
+                  }
+                </p>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Name *</label>
+              <input class="form-input" type="text" formControlName="name" placeholder="Your full name" />
+              @if (showStepErrors && form.get('name')?.invalid && form.get('name')?.touched) {
+                <p class="field-error">Name is required</p>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Affiliation</label>
+              <input class="form-input" type="text" formControlName="affiliation" placeholder="University or organization" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">How did this tool compare with others you have used?</label>
+            <textarea class="form-input form-textarea" [class.form-input--error]="isOverLimit('toolComparison')" formControlName="toolComparison" placeholder="Share your comparison..." rows="3" [attr.maxlength]="TEXT_MAX_LENGTH"></textarea>
+            <div class="form-hint">
+              <span class="char-count" [class.char-count--over]="isOverLimit('toolComparison')">{{ getCharCount('toolComparison') }}/{{ TEXT_MAX_LENGTH }}</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">What additional features would you like to see in a tool like this?</label>
+            <textarea class="form-input form-textarea" [class.form-input--error]="isOverLimit('additionalFeatures')" formControlName="additionalFeatures" placeholder="Describe features you'd like..." rows="3" [attr.maxlength]="TEXT_MAX_LENGTH"></textarea>
+            <div class="form-hint">
+              <span class="char-count" [class.char-count--over]="isOverLimit('additionalFeatures')">{{ getCharCount('additionalFeatures') }}/{{ TEXT_MAX_LENGTH }}</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      
+      <div class="feedback-nav">
+        @if (currentStep > 1) {
+          <tp-button variant="secondary" size="md" (buttonClick)="prevStep()">
+            <i class="bi bi-arrow-left"></i>
+            Back
+          </tp-button>
+        } @else {
+          <div></div>
+        }
+
+        @if (currentStep < totalSteps) {
+          <tp-button variant="primary" size="md" (buttonClick)="nextStep()">
+            Next
+            <i class="bi bi-arrow-right"></i>
+          </tp-button>
+        } @else {
+          <tp-button variant="primary" size="md" (buttonClick)="onSubmit()" [disabled]="submitting">
+            @if (submitting) {
+              <i class="bi bi-arrow-repeat spin"></i>
+              Submitting...
+            } @else {
+              <i class="bi bi-send"></i>
+              Submit Feedback
+            }
+          </tp-button>
+        }
+      </div>
+    </form>
+  }
+
+  @if (activeTab === 'new' && submitted) {
+    
+    <div class="thank-you">
+      <div class="thank-you__icon">
+        <i class="bi bi-check-circle"></i>
+      </div>
+      <h2 class="thank-you__title">Thank You!</h2>
+      <p class="thank-you__message">Your feedback has been submitted successfully. We appreciate your time and input in helping us improve.</p>
+      <tp-button variant="primary" size="md" (buttonClick)="goHome()">
+        <i class="bi bi-house"></i>
+        Back to Home
+      </tp-button>
+    </div>
+  }
+</div>

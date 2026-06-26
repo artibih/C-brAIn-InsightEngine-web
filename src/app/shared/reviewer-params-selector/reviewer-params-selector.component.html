@@ -1,0 +1,95 @@
+<div class="reviewer-params">
+  <button
+    type="button"
+    class="reviewer-params__trigger"
+    [class.reviewer-params__trigger--open]="isOpen()"
+    [disabled]="disabled"
+    aria-haspopup="menu"
+    [attr.aria-expanded]="isOpen()"
+    title="Adjust reviewer output — tone, depth, persona"
+    (click)="toggle()"
+  >
+    <i class="bi bi-sliders2 reviewer-params__trigger-icon"></i>
+    <span class="reviewer-params__trigger-label">Reviewer style</span>
+    <i
+      class="bi bi-chevron-down reviewer-params__chevron"
+      [class.reviewer-params__chevron--open]="isOpen()"
+    ></i>
+  </button>
+
+  @if (isOpen()) {
+    <div
+      class="reviewer-params__menu"
+      role="menu"
+      aria-label="Reviewer output settings"
+    >
+      @switch (status()) {
+        @case ('ready') {
+          @for (group of groups; track group.key) {
+            <div
+              class="reviewer-params__group"
+              role="group"
+              [attr.aria-labelledby]="'reviewer-params-group-' + group.key"
+            >
+              <div
+                class="reviewer-params__group-header"
+                [id]="'reviewer-params-group-' + group.key"
+              >
+                <i class="bi" [ngClass]="group.icon"></i>
+                <span>{{ group.label }}</span>
+              </div>
+
+              @for (option of optionsFor(group.key); track option.value) {
+                <button
+                  type="button"
+                  class="reviewer-params__option"
+                  [class.reviewer-params__option--active]="
+                    isActive(group.key, option)
+                  "
+                  role="menuitemradio"
+                  [attr.aria-checked]="isActive(group.key, option)"
+                  (click)="choose(group.key, option)"
+                >
+                  <span class="reviewer-params__option-body">
+                    <span class="reviewer-params__option-name">{{
+                      option.label
+                    }}</span>
+                    @if (option.effect) {
+                      <span class="reviewer-params__option-effect">{{
+                        option.effect
+                      }}</span>
+                    }
+                  </span>
+                  @if (isActive(group.key, option)) {
+                    <i class="bi bi-check2 reviewer-params__option-check"></i>
+                  }
+                </button>
+              }
+            </div>
+          }
+        }
+        @case ('error') {
+          <div class="reviewer-params__state reviewer-params__state--error">
+            <i class="bi bi-exclamation-triangle"></i>
+            <span>Couldn’t load options.</span>
+            <button
+              type="button"
+              class="reviewer-params__retry"
+              (click)="retry()"
+            >
+              Retry
+            </button>
+          </div>
+        }
+        @default {
+          <div class="reviewer-params__state">
+            <i class="bi bi-arrow-repeat reviewer-params__spinner"></i>
+            <span>Loading options…</span>
+          </div>
+        }
+      }
+    </div>
+
+    <div class="reviewer-params__backdrop" (click)="close()"></div>
+  }
+</div>

@@ -1,0 +1,20 @@
+{
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/assets/*", "/*.{css,js,ico,png,svg,woff,woff2}"]
+  },
+  "routes": [
+    {
+      "route": "/api/*",
+      "allowedRoles": ["authenticated"]
+    }
+  ],
+  "backend": {
+    "api": {
+      "url": "${API_BASE_URL}",
+      "allowedOrigins": [
+        "${FRONTEND_URL}"
+      ]
+    }
+  }
+}

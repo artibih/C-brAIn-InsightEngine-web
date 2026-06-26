@@ -1,0 +1,224 @@
+@use '../../../styles/brand' as *;
+
+.action-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 0;
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-tertiary, $brand-gray-400);
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    i {
+      font-size: 14px;
+    }
+
+    &:hover {
+      color: var(--text-secondary, $brand-gray-500);
+      background: var(--surface-hover, $brand-gray-100);
+    }
+
+    &--active {
+      color: var(--success-color, $brand-success) !important;
+    }
+
+    &--feedback {
+      padding: 6px 8px;
+
+      i {
+        font-size: 16px;
+      }
+    }
+
+    &--positive {
+      color: var(--success-color, $brand-success) !important;
+      background: var(--success-light, $brand-success-light) !important;
+    }
+
+    &--negative {
+      color: var(--error-color, $brand-error) !important;
+      background: var(--error-light, $brand-error-light) !important;
+    }
+  }
+
+  &__label {
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+
+  &__chevron {
+    font-size: 10px;
+    margin-left: 2px;
+  }
+
+  &__feedback {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 4px;
+    border-left: 1px solid var(--border-color, $brand-gray-200);
+    border-right: 1px solid var(--border-color, $brand-gray-200);
+    margin: 0 4px;
+  }
+
+  &__export {
+    position: relative;
+  }
+
+  &__menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 160px;
+    background: var(--surface-color, $brand-white);
+    border: 1px solid var(--border-color, $brand-gray-200);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    animation: menu-enter 0.15s ease-out;
+
+    @keyframes menu-enter {
+      from {
+        opacity: 0;
+        transform: translateY(-4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  }
+
+  &__menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary, $brand-gray-500);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: left;
+
+    i {
+      font-size: 16px;
+    }
+
+    &:hover {
+      color: var(--text-primary, $brand-gray-900);
+      background: var(--surface-hover, $brand-gray-100);
+    }
+
+    &:first-child {
+      border-radius: 8px 8px 0 0;
+    }
+
+    &:last-child {
+      border-radius: 0 0 8px 8px;
+    }
+
+    &:only-child {
+      border-radius: 8px;
+    }
+  }
+}
+
+
+
+
+
+@media (max-width: 768px) {
+  .action-bar {
+    gap: 2px;
+    padding: 6px 0;
+
+    &__btn {
+      padding: 4px 8px;
+      font-size: 12px;
+      gap: 4px;
+      border-radius: 5px;
+
+      i {
+        font-size: 13px;
+      }
+
+      &--feedback {
+        padding: 4px 6px;
+
+        i {
+          font-size: 14px;
+        }
+      }
+    }
+
+    &__feedback {
+      gap: 1px;
+      padding: 0 2px;
+      margin: 0 2px;
+    }
+
+    &__menu {
+      min-width: 140px;
+      border-radius: 6px;
+    }
+
+    &__menu-item {
+      padding: 8px 12px;
+      font-size: 12px;
+      gap: 6px;
+
+      i {
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .action-bar {
+    flex-wrap: wrap;
+
+    &__btn {
+      padding: 3px 6px;
+      font-size: 11px;
+
+      i {
+        font-size: 12px;
+      }
+    }
+
+    &__feedback {
+      border: none;
+      margin: 0;
+    }
+
+    &__menu {
+      min-width: 130px;
+    }
+
+    &__menu-item {
+      padding: 7px 10px;
+      font-size: 11px;
+
+      i {
+        font-size: 13px;
+      }
+    }
+  }
+}

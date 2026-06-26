@@ -1,0 +1,346 @@
+<section class="reviewer-output" role="tabpanel">
+  @if (!isReady()) {
+    
+    <div class="reviewer-output__loader" [class.reviewer-output__loader--idle]="!isStreaming">
+      @if (isStreaming) {
+        <span class="reviewer-output__loader-spinner" aria-hidden="true"></span>
+      } @else {
+        <i class="bi bi-hourglass reviewer-output__loader-glyph"></i>
+      }
+      <div class="reviewer-output__loader-body">
+        <h3 class="reviewer-output__loader-title">{{ tabTitle() }}</h3>
+        <p class="reviewer-output__loader-subtitle">{{ loadingSubtitle() }}</p>
+      </div>
+      @if (isStreaming) {
+        <span class="reviewer-output__loader-progress">{{ receivedCount() }} / {{ totalCount }}</span>
+      }
+    </div>
+  } @else {
+    @switch (activeTab) {
+      @case ('reviewer_final') {
+        @if (reviewerOutput.final_review; as fr) {
+          <article class="reviewer-output__panel reviewer-output__panel--final">
+            <header class="reviewer-output__head">
+              <div>
+                <div class="reviewer-output__head-eyebrow">Final Result</div>
+                <h3 class="reviewer-output__head-title">Consensus reached across reviewers</h3>
+              </div>
+              <span class="reviewer-output__verdict" [ngClass]="recommendationClass(fr.final_recommendation)">
+                <i class="bi" [ngClass]="recommendationIcon(fr.final_recommendation)"></i>
+                <span class="reviewer-output__verdict-label">Final recommendation</span>
+                <strong class="reviewer-output__verdict-value">{{ formatRecommendation(fr.final_recommendation) }}</strong>
+              </span>
+            </header>
+
+            <div class="reviewer-output__block">
+              <h4 class="reviewer-output__h">Consensus</h4>
+              <app-formatted-message
+                class="reviewer-output__prose"
+                [content]="fr.consensus"
+                [isStreaming]="false"
+              ></app-formatted-message>
+            </div>
+
+            <div class="reviewer-output__block">
+              <h4 class="reviewer-output__h">Disagreements</h4>
+              <app-formatted-message
+                class="reviewer-output__prose"
+                [content]="fr.disagreements"
+                [isStreaming]="false"
+              ></app-formatted-message>
+            </div>
+
+            @if (fr.key_risks.length) {
+              <div class="reviewer-output__block reviewer-output__block--danger">
+                <h4 class="reviewer-output__h reviewer-output__h--danger">Key risks</h4>
+                <ul class="reviewer-output__list reviewer-output__list--danger">
+                  @for (risk of fr.key_risks; track $index) { <li>{{ risk }}</li> }
+                </ul>
+              </div>
+            }
+
+            <div class="reviewer-output__block">
+              <h4 class="reviewer-output__h">Justification</h4>
+              <app-formatted-message
+                class="reviewer-output__prose"
+                [content]="fr.justification"
+                [isStreaming]="false"
+              ></app-formatted-message>
+            </div>
+          </article>
+        }
+      }
+
+      @case ('reviewer_journal_editor') {
+        @if (reviewerOutput.review_journal_editor?.output; as o) {
+          <article class="reviewer-output__panel">
+            <header class="reviewer-output__head">
+              <div>
+                <div class="reviewer-output__head-eyebrow">Journal Editor</div>
+                <h3 class="reviewer-output__head-title">Editorial assessment</h3>
+              </div>
+              <span class="reviewer-output__verdict reviewer-output__verdict--inline" [ngClass]="recommendationClass(o.recommendation)">
+                <i class="bi" [ngClass]="recommendationIcon(o.recommendation)"></i>
+                {{ formatRecommendation(o.recommendation) }}
+              </span>
+            </header>
+
+            <div class="reviewer-output__block">
+              <h4 class="reviewer-output__h">Summary</h4>
+              <app-formatted-message
+                class="reviewer-output__prose"
+                [content]="o.summary"
+                [isStreaming]="false"
+              ></app-formatted-message>
+            </div>
+
+            @if (o.strengths.length) {
+              <div class="reviewer-output__block reviewer-output__block--success">
+                <h4 class="reviewer-output__h reviewer-output__h--success">Strengths</h4>
+                <ul class="reviewer-output__list reviewer-output__list--success">
+                  @for (s of o.strengths; track $index) { <li>{{ s }}</li> }
+                </ul>
+              </div>
+            }
+
+            @if (o.weaknesses.length) {
+              <div class="reviewer-output__block reviewer-output__block--warning">
+                <h4 class="reviewer-output__h reviewer-output__h--warning">Weaknesses</h4>
+                <ul class="reviewer-output__list reviewer-output__list--warning">
+                  @for (w of o.weaknesses; track $index) { <li>{{ w }}</li> }
+                </ul>
+              </div>
+            }
+          </article>
+        }
+      }
+
+      @case ('reviewer_methodological') {
+        @if (reviewerOutput.review_methodological?.output; as o) {
+          <article class="reviewer-output__panel">
+            <header class="reviewer-output__head">
+              <div>
+                <div class="reviewer-output__head-eyebrow">Methodological</div>
+                <h3 class="reviewer-output__head-title">Rigor &amp; reproducibility audit</h3>
+              </div>
+              <span class="reviewer-output__verdict reviewer-output__verdict--inline" [ngClass]="recommendationClass(o.recommendation)">
+                <i class="bi" [ngClass]="recommendationIcon(o.recommendation)"></i>
+                {{ formatRecommendation(o.recommendation) }}
+              </span>
+            </header>
+
+            <div class="reviewer-output__block">
+              <h4 class="reviewer-output__h">Summary</h4>
+              <app-formatted-message
+                class="reviewer-output__prose"
+                [content]="o.summary"
+                [isStreaming]="false"
+              ></app-formatted-message>
+            </div>
+
+            @if (o.strengths.length) {
+              <div class="reviewer-output__block reviewer-output__block--success">
+                <h4 class="reviewer-output__h reviewer-output__h--success">Strengths</h4>
+                <ul class="reviewer-output__list reviewer-output__list--success">
+                  @for (s of o.strengths; track $index) { <li>{{ s }}</li> }
+                </ul>
+              </div>
+            }
+
+            @if (o.weaknesses.length) {
+              <div class="reviewer-output__block reviewer-output__block--warning">
+                <h4 class="reviewer-output__h reviewer-output__h--warning">Weaknesses</h4>
+                <ul class="reviewer-output__list reviewer-output__list--warning">
+                  @for (w of o.weaknesses; track $index) { <li>{{ w }}</li> }
+                </ul>
+              </div>
+            }
+
+            @if (o.methodological_issues?.length) {
+              <div class="reviewer-output__block reviewer-output__block--danger">
+                <h4 class="reviewer-output__h reviewer-output__h--danger">Methodological issues</h4>
+                <ul class="reviewer-output__list reviewer-output__list--danger">
+                  @for (m of o.methodological_issues; track $index) { <li>{{ m }}</li> }
+                </ul>
+              </div>
+            }
+          </article>
+        }
+      }
+
+      @case ('reviewer_domain_expert') {
+        @if (reviewerOutput.review_domain_expert?.output; as o) {
+          <article class="reviewer-output__panel">
+            <header class="reviewer-output__head">
+              <div>
+                <div class="reviewer-output__head-eyebrow">Domain Expert</div>
+                <h3 class="reviewer-output__head-title">Field-level appraisal</h3>
+              </div>
+              <span class="reviewer-output__verdict reviewer-output__verdict--inline" [ngClass]="recommendationClass(o.recommendation)">
+                <i class="bi" [ngClass]="recommendationIcon(o.recommendation)"></i>
+                {{ formatRecommendation(o.recommendation) }}
+              </span>
+            </header>
+
+            <div class="reviewer-output__block">
+              <h4 class="reviewer-output__h">Summary</h4>
+              <app-formatted-message
+                class="reviewer-output__prose"
+                [content]="o.summary"
+                [isStreaming]="false"
+              ></app-formatted-message>
+            </div>
+
+            @if (o.strengths.length) {
+              <div class="reviewer-output__block reviewer-output__block--success">
+                <h4 class="reviewer-output__h reviewer-output__h--success">Strengths</h4>
+                <ul class="reviewer-output__list reviewer-output__list--success">
+                  @for (s of o.strengths; track $index) { <li>{{ s }}</li> }
+                </ul>
+              </div>
+            }
+
+            @if (o.weaknesses.length) {
+              <div class="reviewer-output__block reviewer-output__block--warning">
+                <h4 class="reviewer-output__h reviewer-output__h--warning">Weaknesses</h4>
+                <ul class="reviewer-output__list reviewer-output__list--warning">
+                  @for (w of o.weaknesses; track $index) { <li>{{ w }}</li> }
+                </ul>
+              </div>
+            }
+
+            @if (o.technical_concerns?.length) {
+              <div class="reviewer-output__block reviewer-output__block--danger">
+                <h4 class="reviewer-output__h reviewer-output__h--danger">Technical concerns</h4>
+                <ul class="reviewer-output__list reviewer-output__list--danger">
+                  @for (t of o.technical_concerns; track $index) { <li>{{ t }}</li> }
+                </ul>
+              </div>
+            }
+          </article>
+        }
+      }
+
+      @case ('reviewer_benchmark_evidence') {
+        @if (reviewerOutput.review_benchmark_evidence?.output; as o) {
+          <article class="reviewer-output__panel">
+            <header class="reviewer-output__head">
+              <div>
+                <div class="reviewer-output__head-eyebrow">Benchmark &amp; Evidence</div>
+                <h3 class="reviewer-output__head-title">Claim grounding &amp; replication check</h3>
+              </div>
+              <span class="reviewer-output__verdict reviewer-output__verdict--inline" [ngClass]="recommendationClass(o.recommendation)">
+                <i class="bi" [ngClass]="recommendationIcon(o.recommendation)"></i>
+                {{ formatRecommendation(o.recommendation) }}
+              </span>
+            </header>
+
+            @if (o.evidence_grounding) {
+              <div class="reviewer-output__grounding">
+                <span class="reviewer-output__grounding-label">Evidence grounding</span>
+                <span class="reviewer-output__verdict reviewer-output__verdict--inline" [ngClass]="evidenceGroundingClass(o.evidence_grounding)">
+                  <i class="bi" [ngClass]="evidenceGroundingIcon(o.evidence_grounding)"></i>
+                  {{ formatRecommendation(o.evidence_grounding) }}
+                </span>
+              </div>
+            }
+
+            <div class="reviewer-output__block">
+              <h4 class="reviewer-output__h">Summary</h4>
+              <app-formatted-message
+                class="reviewer-output__prose"
+                [content]="o.summary"
+                [isStreaming]="false"
+              ></app-formatted-message>
+            </div>
+
+            @if (o.supported_claims?.length) {
+              <div class="reviewer-output__block reviewer-output__block--success">
+                <h4 class="reviewer-output__h reviewer-output__h--success">Supported claims</h4>
+                <ul class="reviewer-output__claims">
+                  @for (c of o.supported_claims; track $index) {
+                    <li class="reviewer-output__claim">
+                      <span class="reviewer-output__claim-text">{{ c.claim }}</span>
+                      @if (c.evidence || c.reason; as why) {
+                        <span class="reviewer-output__claim-reason">{{ why }}</span>
+                      }
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+
+            @if (o.unsubstantiated_claims?.length) {
+              <div class="reviewer-output__block reviewer-output__block--warning">
+                <h4 class="reviewer-output__h reviewer-output__h--warning">Unsubstantiated claims</h4>
+                <ul class="reviewer-output__claims">
+                  @for (c of o.unsubstantiated_claims; track $index) {
+                    <li class="reviewer-output__claim">
+                      <span class="reviewer-output__claim-text">{{ c.claim }}</span>
+                      @if (c.reason) {
+                        <span class="reviewer-output__claim-reason">{{ c.reason }}</span>
+                      }
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+
+            @if (o.contradicted_claims?.length) {
+              <div class="reviewer-output__block reviewer-output__block--danger">
+                <h4 class="reviewer-output__h reviewer-output__h--danger">Contradicted claims</h4>
+                <ul class="reviewer-output__claims">
+                  @for (c of o.contradicted_claims; track $index) {
+                    <li class="reviewer-output__claim">
+                      <span class="reviewer-output__claim-text">{{ c.claim }}</span>
+                      @if (c.reason) {
+                        <span class="reviewer-output__claim-reason">{{ c.reason }}</span>
+                      }
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+
+            @if (o.replication_findings?.length) {
+              <div class="reviewer-output__block">
+                <h4 class="reviewer-output__h">Replication findings</h4>
+                <div class="reviewer-output__findings">
+                  @for (f of o.replication_findings; track $index) {
+                    <div class="reviewer-output__finding">
+                      <div class="reviewer-output__finding-head">
+                        <span class="reviewer-output__finding-topic">{{ f.topic }}</span>
+                        <span class="reviewer-output__agreement" [ngClass]="evidenceGroundingClass(f.agreement)">
+                          {{ formatRecommendation(f.agreement) }}
+                        </span>
+                      </div>
+                      <p class="reviewer-output__finding-evidence">{{ f.evidence_from_graph }}</p>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            @if (o.strengths.length) {
+              <div class="reviewer-output__block reviewer-output__block--success">
+                <h4 class="reviewer-output__h reviewer-output__h--success">Strengths</h4>
+                <ul class="reviewer-output__list reviewer-output__list--success">
+                  @for (s of o.strengths; track $index) { <li>{{ s }}</li> }
+                </ul>
+              </div>
+            }
+
+            @if (o.weaknesses.length) {
+              <div class="reviewer-output__block reviewer-output__block--warning">
+                <h4 class="reviewer-output__h reviewer-output__h--warning">Weaknesses</h4>
+                <ul class="reviewer-output__list reviewer-output__list--warning">
+                  @for (w of o.weaknesses; track $index) { <li>{{ w }}</li> }
+                </ul>
+              </div>
+            }
+          </article>
+        }
+      }
+    }
+  }
+</section>

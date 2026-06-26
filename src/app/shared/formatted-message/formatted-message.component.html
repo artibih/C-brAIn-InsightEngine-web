@@ -1,0 +1,10 @@
+<div
+  class="formatted-message"
+  [class.formatted-message--streaming]="isStreaming"
+  [innerHTML]="formattedContent"
+  (click)="onContentClick($event)"
+></div>
+
+@if (isStreaming) {
+  <span class="streaming-cursor">|</span>
+}

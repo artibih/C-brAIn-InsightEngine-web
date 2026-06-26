@@ -1,0 +1,119 @@
+
+
+@use '../../../styles/brand' as *;
+
+.auth-required-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: $spacing-6;
+  padding-top: $spacing-8;
+  padding-bottom: $spacing-8;
+  background: $brand-white;
+  overflow-y: auto;
+
+  @media (min-height: 500px) {
+    align-items: center;
+    padding-top: $spacing-6;
+  }
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: $brand-white;
+  border-radius: $radius-lg;
+  border: 1px solid $brand-gray-200;
+  padding: $spacing-8 $spacing-6;
+  text-align: center;
+}
+
+.auth-logo-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-2;
+  margin-bottom: $spacing-2;
+}
+
+.auth-logo {
+  width: 280px;
+  height: auto;
+  object-fit: contain;
+}
+
+.auth-header h1 {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+.auth-team {
+  font-size: $font-size-xs;
+  color: $brand-gray-500;
+  margin: $spacing-1 0 $spacing-6;
+}
+
+.auth-header h2 {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $brand-gray-900;
+  margin: 0 0 $spacing-1;
+}
+
+.auth-desc {
+  font-size: $font-size-sm;
+  color: $brand-gray-500;
+  margin: 0 0 $spacing-6;
+}
+
+.auth-submit {
+  width: 100%;
+  border: none;
+  border-radius: $radius-md;
+  background-color: var(--btn-primary-bg);
+  color: $brand-white;
+  padding: $spacing-3 $spacing-4;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: background-color $transition-fast;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+}
+
+.auth-submit:hover {
+  background-color: var(--btn-primary-hover);
+}
+
+.auth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+.auth-register {
+  width: 100%;
+  border: 2px solid var(--btn-outline-border);
+  border-radius: $radius-md;
+  background-color: transparent;
+  color: var(--btn-outline-text);
+  padding: $spacing-3 $spacing-4;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: background-color $transition-fast, color $transition-fast;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+}
+
+.auth-register:hover {
+  background-color: var(--btn-outline-hover-bg);
+  color: $brand-white;
+}

@@ -1,0 +1,47 @@
+<div class="chat-home">
+  <div class="chat-home__center">
+    <div class="welcome-card">
+      
+      <div class="welcome-header">
+        <h1 class="welcome-card__greeting">
+          {{
+            userName
+              ? userName + ", where should we start today?"
+              : "Where should we start today?"
+          }}
+        </h1>
+        <p class="welcome-card__subtitle">
+          Your AI-powered research assistant for literature review, data
+          analysis, and scientific writing
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <tp-chat-composer
+    [isSending]="isSending"
+    [uploadingFiles]="uploadingFiles"
+    [attachments]="attachments"
+    [activeModeName]="activeModeName"
+    [activeModeIcon]="activeModeIcon"
+    [modeOptions]="modeOptions"
+    [placeholder]="composerPlaceholder"
+    [hideAttach]="false"
+    [accept]="composerAccept"
+    [lockLlmSelector]="isMvp2Mode"
+    [showReviewerParams]="isReviewerMode"
+    [showPrebuiltWorkflows]="isMvp2Mode"
+    [prebuiltWorkflows]="prebuiltWorkflows"
+    [prebuiltLoading]="prebuiltLoading"
+    [prebuiltLoadError]="prebuiltLoadError"
+    [activePrebuiltId]="activePrebuiltId"
+    (modeChange)="onModeChangeFromDropdown($event)"
+    (send)="onSendFromInput($event)"
+    (filesSelected)="onFilesSelected($event)"
+    (removeAttachment)="removeAttachment($event)"
+    [promptText]="composerText"
+    (filesPicked)="onFilesChosen($event)"
+    (filesDropped)="onFilesChosen($event)"
+    (usePrebuiltWorkflow)="onUsePrebuiltWorkflow($event)"
+  ></tp-chat-composer>
+</div>

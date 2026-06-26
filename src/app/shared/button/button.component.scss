@@ -1,0 +1,216 @@
+
+
+@use '../../../styles/brand' as *;
+
+.tp-btn {
+  border: none;
+  outline: none;
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: $radius-md;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: $brand-white;
+  transition:
+    background-color $transition-fast,
+    box-shadow $transition-fast,
+    transform 0.05s ease,
+    border-color $transition-fast;
+}
+
+
+.tp-btn__inner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+}
+
+.tp-btn,
+.tp-btn__inner,
+.tp-btn__label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.tp-btn i,
+.tp-btn svg {
+  font-size: 1.05rem;
+  line-height: 1;
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+}
+
+.tp-btn i.bi::before {
+  font-size: 1.1rem !important;
+}
+
+
+.tp-btn__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.tp-btn__icon:empty {
+  display: none;
+}
+
+.tp-btn__label {
+  white-space: nowrap;
+}
+
+.tp-btn--lg {
+  padding: $spacing-3 $spacing-6;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+}
+
+.tp-btn--md {
+  padding: $spacing-3 $spacing-5;
+  font-size: $font-size-sm;
+}
+
+.tp-btn--sm {
+  padding: $spacing-2 $spacing-4;
+  font-size: $font-size-xs;
+}
+
+.tp-btn--xs {
+  padding: $spacing-2 $spacing-3;
+  font-size: $font-size-xs;
+}
+
+.tp-btn--block {
+  width: 100%;
+}
+
+.tp-btn--primary {
+  background-color: var(--color-primary);
+  border: 1.5px solid var(--color-primary);
+  color: $brand-white;
+
+  &:hover {
+    background-color: var(--btn-primary-hover);
+  }
+}
+
+.tp-btn--secondary {
+  background-color: $brand-white;
+  border: 1.5px solid $brand-gray-200;
+  color: $brand-gray-800;
+
+  &:hover {
+    background-color: $brand-gray-50;
+    border-color: $brand-gray-300;
+  }
+}
+
+.tp-btn--danger {
+  background-color: $brand-white;
+  border: 1.5px solid $brand-error;
+  color: $brand-error;
+
+  &:hover {
+    background-color: $brand-error-light;
+  }
+}
+
+.tp-btn--accent {
+  background-color: var(--color-accent);
+  border: 1.5px solid var(--color-accent);
+  color: $brand-white;
+
+  &:hover {
+    background-color: var(--accent-hover);
+  }
+}
+
+.tp-btn--disabled,
+.tp-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+
+@media (max-width: $breakpoint-md) {
+  .tp-btn {
+    border-radius: 10px;
+  }
+
+  .tp-btn__inner {
+    gap: 8px;
+  }
+
+  .tp-btn i,
+  .tp-btn svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .tp-btn i.bi::before {
+    font-size: 1rem !important;
+  }
+
+  .tp-btn--lg {
+    padding: $spacing-2 $spacing-5;
+    font-size: $font-size-sm;
+  }
+
+  .tp-btn--md {
+    padding: $spacing-2 $spacing-4;
+    font-size: $font-size-xs;
+  }
+
+  .tp-btn--sm {
+    padding: $spacing-1 $spacing-3;
+    font-size: 11px;
+  }
+
+  .tp-btn--xs {
+    padding: $spacing-1 $spacing-2;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: $breakpoint-sm) {
+  .tp-btn {
+    border-radius: 8px;
+  }
+
+  .tp-btn__inner {
+    gap: 6px;
+  }
+
+  .tp-btn i,
+  .tp-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .tp-btn--lg {
+    padding: $spacing-2 $spacing-4;
+    font-size: $font-size-xs;
+  }
+
+  .tp-btn--md {
+    padding: 6px $spacing-3;
+    font-size: 11px;
+  }
+
+  .tp-btn--sm {
+    padding: 4px $spacing-2;
+    font-size: 10px;
+  }
+
+  .tp-btn--xs {
+    padding: 4px $spacing-2;
+    font-size: 10px;
+  }
+}

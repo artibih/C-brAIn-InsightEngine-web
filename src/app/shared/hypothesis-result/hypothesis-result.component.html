@@ -1,0 +1,210 @@
+@let p = plan();
+@if (!p && isStreaming()) {
+  
+  <div class="hyp">
+    <div class="hyp__loading">
+      <div class="hyp__loading-icon">
+        <div class="hyp__spinner"></div>
+      </div>
+      <div class="hyp__loading-text">
+        <span class="hyp__loading-title">Analyzing your hypothesis...</span>
+        <span class="hyp__loading-subtitle">Creating analysis plan and preparing execution steps</span>
+      </div>
+    </div>
+  </div>
+} @else if (p) {
+  <div class="hyp">
+
+    
+    <div class="hyp__block">
+      <div class="hyp__block-header" (click)="togglePlan()">
+        <span class="hyp__block-number">01</span>
+        <span class="hyp__block-title">CREATE PLAN</span>
+        @if (p.executionLogs.length) {
+          <span class="hyp__log-badge">{{ p.executionLogs[p.executionLogs.length - 1] }}</span>
+        }
+        <span class="hyp__block-progress">
+          {{ completedCount() }}/{{ totalCount() }} completed
+        </span>
+        <i class="bi" [ngClass]="planCollapsed ? 'bi-chevron-down' : 'bi-chevron-up'"></i>
+      </div>
+
+      @if (!planCollapsed) {
+        <div class="hyp__block-body">
+
+          
+          <div class="hyp__section">
+            <span class="hyp__label">Objective</span>
+            <p class="hyp__text">{{ p.objective }}</p>
+          </div>
+
+          
+          @if (p.methodologyChecks.length) {
+            <div class="hyp__section">
+              <span class="hyp__label">Methodology Checks</span>
+              <ul class="hyp__checks">
+                @for (check of p.methodologyChecks; track $index) {
+                  <li>{{ check }}</li>
+                }
+              </ul>
+            </div>
+          }
+
+          
+          <div class="hyp__table-wrap">
+            <table class="hyp__table">
+              <thead>
+                <tr>
+                  <th class="col-id">ID</th>
+                  <th class="col-detail">Objective</th>
+                  <th class="col-rationale">Rationale</th>
+                  <th class="col-agent">Agent</th>
+                  <th class="col-status">Status</th>
+                  <th class="col-result">Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (step of p.analysisSteps; track step.stepId) {
+                  <tr [class.row--done]="step.status === 'completed'"
+                      [class.row--wait]="step.status === 'pending'">
+
+                    <td class="col-id">{{ step.stepId }}</td>
+
+                    <td class="col-detail">
+                      <span class="cell-task">{{ step.task }}</span>
+                      @if (step.description) {
+                        <span class="cell-desc">{{ step.description }}</span>
+                      }
+                    </td>
+
+                    <td class="col-rationale">{{ step.rationale }}</td>
+
+                    <td class="col-agent">
+                      <span class="agent-label">{{ formatAgentLabel(step.agent) }}</span>
+                    </td>
+
+                    <td class="col-status">
+                      <span class="badge" [class]="'badge--' + step.status">
+                        {{ step.status }}
+                      </span>
+                    </td>
+
+                    <td class="col-result">
+                      @if (step.status === 'running') {
+                        <span class="result-running">
+                          <span class="result-running__spinner"></span>
+                          <span class="result-running__text">Processing...</span>
+                        </span>
+                      } @else if (step.result?.length || step.structuredResults?.length || step.rawKeyValues?.length || step.strengths?.length || step.validationSummary) {
+                        @if (step.strengths?.length) {
+                          <div class="result-section">
+                            <span class="result-section__label">Strengths</span>
+                            <ul class="result-section__list">
+                              @for (s of step.strengths; track $index) {
+                                <li [innerHTML]="formatMarkdown(s)"></li>
+                              }
+                            </ul>
+                          </div>
+                        }
+                        @if (step.result?.length) {
+                          @for (item of step.result; track $index) {
+                            <p class="result-item" [innerHTML]="formatMarkdown(item)"></p>
+                          }
+                        }
+                        @if (step.validationSummary) {
+                          <div class="result-section">
+                            <span class="result-section__label">Validation Summary</span>
+                            <p class="result-section__text" [innerHTML]="formatMarkdown(step.validationSummary)"></p>
+                          </div>
+                        }
+                        @if (step.structuredResults?.length) {
+                          @for (tbl of step.structuredResults; track $index) {
+                            @if (tbl.title) {
+                              <span class="result-table-title">{{ tbl.title }}</span>
+                            }
+                            <div class="result-table-wrap">
+                              <table class="result-table">
+                                <thead>
+                                  <tr>
+                                    @for (h of tbl.headers; track $index) {
+                                      <th>{{ h }}</th>
+                                    }
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  @for (row of tbl.rows; track $index) {
+                                    <tr>
+                                      @for (cell of row; track $index) {
+                                        <td [innerHTML]="formatMarkdown(cell)"></td>
+                                      }
+                                    </tr>
+                                  }
+                                </tbody>
+                              </table>
+                            </div>
+                          }
+                        }
+                        @if (step.rawKeyValues?.length) {
+                          <div class="result-kv">
+                            @for (kv of step.rawKeyValues; track $index) {
+                              <div class="result-kv__item">
+                                <span class="result-kv__key">{{ kv.key }}</span>
+                                <span class="result-kv__value">{{ kv.value }}</span>
+                              </div>
+                            }
+                          </div>
+                        }
+                        @if (step.imageUrls?.length) {
+                          <div class="result-images-wrap"
+                               [class.result-images-wrap--scrollable]="(step.imageUrls?.length ?? 0) > 1">
+                            <div class="result-images">
+                              @for (img of step.imageUrls; track img.url) {
+                                <div class="result-images__item">
+                                  <img [signedSrc]="img.url" [alt]="img.label"
+                                       loading="lazy"
+                                       hideIfTransparent
+                                       (error)="$event.target.style.display='none'" />
+                                  <span class="result-images__label">{{ img.label }}</span>
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        } @else if (step.imageUrl) {
+                          <img class="result-img" [signedSrc]="step.imageUrl"
+                               alt="Step {{ step.stepId }} visualisation"
+                               (error)="$event.target.style.display='none'" />
+                        }
+                      } @else {
+                        <span class="empty">-</span>
+                      }
+                    </td>
+
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      }
+    </div>
+
+    
+    @if (p.validationCriteria.length) {
+      <div class="hyp__block">
+        <div class="hyp__block-header hyp__block-header--static">
+          <span class="hyp__block-number">02</span>
+          <span class="hyp__block-title">VALIDATION CRITERIA</span>
+        </div>
+        <div class="hyp__block-body">
+          <ul class="hyp__criteria">
+            @for (c of p.validationCriteria; track $index) {
+              <li>{{ c }}</li>
+            }
+          </ul>
+        </div>
+      </div>
+    }
+
+  </div>
+}

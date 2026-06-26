@@ -1,0 +1,85 @@
+@if (eula.needsAcceptance()) {
+  
+
+  <app-eula-dialog
+    mode="gate"
+    [loading]="eulaSubmitting"
+    (accept)="onEulaAccept($event)"
+    (decline)="onEulaDecline()"
+  ></app-eula-dialog>
+} @else if (!isAuthRoute) {
+  <div
+    class="app-shell"
+    [class.app-shell--sidebar-hidden]="sidebarHidden"
+    [class.app-shell--sidebar-collapsed]="sidebarCollapsed"
+    [class.app-shell--sidebar-open]="!sidebarHidden"
+    [class.app-shell--right-panel-collapsed]="rightPanelCollapsed">
+
+    
+    <div
+      class="app-shell__sidebar-overlay"
+      [class.app-shell__sidebar-overlay--visible]="!sidebarHidden"
+      (click)="onCloseSidebar()">
+    </div>
+
+    
+    <div class="app-shell__sidebar">
+      <app-sidebar
+        [activeId]="activeId"
+        [conversations]="conversations"
+        [isLoadingConversations]="isLoadingConversations"
+        [hasMoreConversations]="hasMoreConversations"
+        [loadingMoreConversations]="loadingMoreConversations"
+        (newConversation)="onNewConversationMobile()"
+        (newProject)="onNewProjectMobile()"
+        (openSettings)="onOpenSettingsMobile()"
+        (openAdminPanel)="onOpenAdminPanelMobile()"
+        (openFeedback)="onOpenFeedbackMobile()"
+        (conversationSelected)="onConversationSelectedMobile($event)"
+        (conversationDeleted)="onConversationDeleted($event)"
+        (loadMore)="onLoadMoreConversations()"
+        (closeSidebar)="onCloseSidebar()"
+      ></app-sidebar>
+    </div>
+    
+    <div class="app-shell__main">
+      <app-header
+        [userEmail]="userEmail"
+        [activeMode]="activeMode"
+        [activeTab]="activeConversationTab"
+        [activeModeName]="activeModeName"
+        [reasoningStepsCount]="reasoningSteps.length"
+        [referencesCount]="referencesCount"
+        [reviewerReady]="reviewerReady"
+        [reviewerStreaming]="reviewerStreaming"
+        [showTabs]="isConversationRoute"
+        (signOut)="onSignOut()"
+        (toggleSidebar)="onToggleSidebar()"
+        (modeChange)="onModeChange($event)"
+        (tabChange)="onConversationTabChange($event)"
+      ></app-header>
+      <div class="app-shell__body">
+        <div class="app-shell__content">
+          <router-outlet></router-outlet>
+        </div>
+        
+
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+} @else {
+  <router-outlet></router-outlet>
+}
+
+<tp-toast-container></tp-toast-container>

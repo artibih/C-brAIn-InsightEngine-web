@@ -1,0 +1,67 @@
+<div class="action-bar">
+  
+  <button
+    class="action-bar__btn"
+    [class.action-bar__btn--active]="copied"
+    (click)="onCopy()"
+    title="Copy to clipboard"
+  >
+    <i class="bi" [ngClass]="copied ? 'bi-check2' : 'bi-clipboard'"></i>
+    <span class="action-bar__label">{{ copied ? 'Copied!' : 'Copy' }}</span>
+  </button>
+
+  
+  <div class="action-bar__feedback">
+    <button
+      class="action-bar__btn action-bar__btn--feedback"
+      [class.action-bar__btn--positive]="feedback === 'positive'"
+      (click)="onFeedback('positive')"
+      title="Good response"
+    >
+      <i class="bi bi-hand-thumbs-up"></i>
+    </button>
+    <button
+      class="action-bar__btn action-bar__btn--feedback"
+      [class.action-bar__btn--negative]="feedback === 'negative'"
+      (click)="onFeedback('negative')"
+      title="Bad response"
+    >
+      <i class="bi bi-hand-thumbs-down"></i>
+    </button>
+  </div>
+
+  
+  <button
+    *ngIf="showRegenerate"
+    class="action-bar__btn"
+    (click)="onRegenerate()"
+    title="Regenerate response"
+  >
+    <i class="bi bi-arrow-clockwise"></i>
+    <span class="action-bar__label">Regenerate</span>
+  </button>
+
+  
+  <div class="action-bar__export" *ngIf="showExport">
+    <button
+      class="action-bar__btn"
+      (click)="toggleExportMenu()"
+      title="Export"
+    >
+      <i class="bi bi-download"></i>
+      <span class="action-bar__label">Export</span>
+      <i class="bi bi-chevron-down action-bar__chevron"></i>
+    </button>
+
+    <div class="action-bar__menu" *ngIf="showExportMenu">
+      <button class="action-bar__menu-item" (click)="onExportPdf()">
+        <i class="bi bi-file-pdf"></i>
+        <span>Export as PDF</span>
+      </button>
+      <button class="action-bar__menu-item" (click)="onExportDocx()">
+        <i class="bi bi-file-word"></i>
+        <span>Export as Word</span>
+      </button>
+    </div>
+  </div>
+</div>

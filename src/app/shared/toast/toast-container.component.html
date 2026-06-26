@@ -1,0 +1,22 @@
+<div class="tp-toast-host">
+  @if ((toasts$ | async); as toasts) {
+    <div class="tp-toast-stack">
+      @for (t of toasts; track trackById($index, t)) {
+        <div
+          class="tp-toast"
+          [class.tp-toast--error]="t.variant === 'error'"
+          [class.tp-toast--success]="t.variant === 'success'"
+          [class.tp-toast--info]="t.variant === 'info'"
+          >
+          <button class="tp-toast__close" type="button" (click)="dismiss(t.id)">
+            <i class="bi bi-x"></i>
+          </button>
+          <div class="tp-toast__title">{{ t.title }}</div>
+          @if (t.description) {
+            <div class="tp-toast__desc">{{ t.description }}</div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

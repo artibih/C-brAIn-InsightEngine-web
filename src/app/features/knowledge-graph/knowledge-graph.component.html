@@ -1,0 +1,285 @@
+<div class="kg">
+  
+  <header class="kg__header">
+    <h2 class="kg__title">Generated Graph</h2>
+    <button class="kg__close" type="button" (click)="close()" aria-label="Close">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </header>
+
+  
+  @if (allLabels().length > 0) {
+    <div class="kg__filters">
+      @for (label of allLabels(); track label) {
+        <label class="kg-filter">
+          <input
+            type="checkbox"
+            [checked]="labelFilter()[label]"
+            (change)="onToggleLabel(label, $any($event.target).checked)"
+          />
+          <span
+            class="kg-filter__swatch"
+            [style.backgroundColor]="paletteFor(label).fill"
+          ></span>
+          <span class="kg-filter__text">{{ label }}</span>
+        </label>
+      }
+    </div>
+  }
+
+  
+  <div class="kg__main">
+    <div class="kg__canvas-wrap">
+      <div class="kg__canvas" #cyContainer></div>
+
+      
+      <div class="kg__controls">
+        <button class="kg-ctl" type="button" (click)="zoomIn()" aria-label="Zoom in">
+          <i class="bi bi-zoom-in"></i>
+        </button>
+        <button class="kg-ctl" type="button" (click)="zoomOut()" aria-label="Zoom out">
+          <i class="bi bi-zoom-out"></i>
+        </button>
+        <button class="kg-ctl" type="button" (click)="resetView()" aria-label="Reset view">
+          <i class="bi bi-arrows-fullscreen"></i>
+        </button>
+      </div>
+
+      
+      @if (loading()) {
+        <div class="kg__loading">
+          <i class="bi bi-arrow-repeat spin"></i>
+        </div>
+      }
+
+      
+      @if (selectedNode(); as node) {
+        <aside class="kg-node-info">
+          <header class="kg-node-info__head">
+            <span
+              class="kg-node-info__dot"
+              [style.backgroundColor]="paletteFor(node.label).fill"
+            ></span>
+            <span class="kg-node-info__label">{{ node.label }}</span>
+            <button
+              class="kg-node-info__close"
+              type="button"
+              (click)="selectedNode.set(null)"
+              aria-label="Close"
+            >
+              <i class="bi bi-x"></i>
+            </button>
+          </header>
+          <h3 class="kg-node-info__title">{{ displayNameFor(node) }}</h3>
+          <div class="kg-node-info__actions">
+            <button class="kg-btn kg-btn--ghost" type="button" (click)="expandNode(node.id)">
+              <i class="bi bi-diagram-3"></i> Expand
+            </button>
+            <button
+              class="kg-btn kg-btn--ghost"
+              type="button"
+              [disabled]="!!pathSource() && pathSource() === node.id"
+              (click)="startPathFromSelected()"
+            >
+              <i class="bi bi-signpost-split"></i> Find path from…
+            </button>
+          </div>
+          <dl class="kg-node-info__props">
+            @for (kv of nodeProperties(node); track kv.key) {
+              <div class="kg-prop">
+                <dt class="kg-prop__k">{{ kv.key }}</dt>
+                <dd class="kg-prop__v">
+                  @if (kv.kind === 'pdf' && kv.href) {
+                    <button
+                      type="button"
+                      class="kg-prop__pdf"
+                      [disabled]="resolvingPaperUrls().has(kv.href)"
+                      (click)="openPaperUrl(kv.href)"
+                      [title]="resolvingPaperUrls().has(kv.href) ? 'Opening…' : 'Open PDF in a new tab'"
+                      aria-label="Open PDF"
+                    >
+                      <i class="bi" [class.bi-file-earmark-pdf-fill]="!resolvingPaperUrls().has(kv.href)" [class.bi-arrow-repeat]="resolvingPaperUrls().has(kv.href)"></i>
+                      <span>{{ resolvingPaperUrls().has(kv.href) ? 'Opening…' : 'View Paper' }}</span>
+                    </button>
+                  } @else if (kv.href) {
+                    <a
+                      class="kg-prop__link"
+                      [href]="kv.href"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {{ kv.value }}
+                      <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                  } @else {
+                    {{ kv.value }}
+                  }
+                </dd>
+              </div>
+            }
+          </dl>
+        </aside>
+      }
+
+      
+      @if (pathSource()) {
+        <div class="kg__path-bar">
+          <i class="bi bi-signpost-split"></i>
+          <span>Pick a target node on the canvas ({{ streamedPaths() }} paths so far)</span>
+          <button class="kg-btn kg-btn--tiny" (click)="cancelPath()">Cancel</button>
+        </div>
+      }
+
+      
+      @if (errorMessage(); as msg) {
+        <div class="kg__toast">
+          <span>{{ msg }}</span>
+          <button class="kg-btn kg-btn--tiny" (click)="errorMessage.set(null)">Dismiss</button>
+        </div>
+      }
+
+      
+      <div class="kg__action-row">
+        <div class="kg-search">
+          <button
+            class="kg-search__toggle"
+            type="button"
+            (click)="openSearch()"
+            aria-label="Search nodes"
+          >
+            <i class="bi bi-search"></i>
+          </button>
+          @if (hasClearableState) {
+            <button
+              class="kg-search__clear"
+              type="button"
+              (click)="clearSearch()"
+              aria-label="Clear search and graph"
+              title="Clear search and reset graph"
+            >
+              <i class="bi bi-x-lg"></i>
+            </button>
+          }
+          @if (showSearchPanel()) {
+            <div class="kg-search__panel">
+              <input
+                class="kg-search__input"
+                type="text"
+                placeholder="Search nodes…"
+                autofocus
+                [value]="searchQuery()"
+                (input)="onSearchInput($any($event.target).value)"
+              />
+              @if (searchLoading()) {
+                <div class="kg-search__hint">Searching…</div>
+              } @else if (searchResults().length === 0 && searchQuery()) {
+                <div class="kg-search__hint">No matches</div>
+              } @else {
+                @if (searchTotal() !== null) {
+                  <div class="kg-search__facets">
+                    <span class="kg-search__total">{{ searchTotal() }} match{{ searchTotal() === 1 ? '' : 'es' }}</span>
+                    @for (f of searchFacetBadges(); track f.label) {
+                      <span
+                        class="kg-search__facet"
+                        [style.backgroundColor]="f.fill"
+                        [style.color]="f.text"
+                        [title]="f.label + ': ' + f.count"
+                      >
+                        {{ f.label }} {{ f.count }}
+                      </span>
+                    }
+                  </div>
+                }
+                <div class="kg-search__results">
+                  @for (hit of searchResults(); track hit.id) {
+                    <button
+                      class="kg-search__hit"
+                      type="button"
+                      (click)="onSearchResultClick(hit)"
+                    >
+                      <span
+                        class="kg-filter__swatch"
+                        [style.backgroundColor]="paletteFor(hit.label).fill"
+                        [title]="hit.label"
+                      ></span>
+                      <span class="kg-search__hit-name">{{ hit.name }}</span>
+                      <span class="kg-search__hit-meta">deg {{ hit.degree }}</span>
+                    </button>
+                  }
+                  @if (hasMoreSearchResults()) {
+                    <button
+                      class="kg-search__more"
+                      type="button"
+                      [disabled]="searchLoading()"
+                      (click)="loadMoreSearchResults()"
+                    >
+                      @if (searchLoading()) {
+                        <i class="bi bi-arrow-repeat spin"></i> Loading…
+                      } @else {
+                        Load more
+                        <span class="kg-search__more-meta">
+                          ({{ searchResults().length }} / {{ searchTotal() }})
+                        </span>
+                      }
+                    </button>
+                  } @else if (searchCapReached()) {
+                    <div class="kg-search__cap-hint">
+                      <i class="bi bi-info-circle"></i>
+                      Showing the first {{ searchResults().length }} of {{ searchTotal() }} matches.
+                      Refine your query to see more.
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="kg__actions">
+          @if (canCompare()) {
+            <button class="kg-btn" type="button" (click)="compareSelected()">
+              <i class="bi bi-columns-gap"></i> Compare ({{ selectedIds().size }})
+            </button>
+          }
+          <button
+            class="kg-btn"
+            type="button"
+            [disabled]="canvasNodeCount === 0"
+            (click)="exportCanvas()"
+          >
+            <i class="bi bi-download"></i> Export
+          </button>
+        </div>
+      </div>
+    </div>
+
+    
+    <aside class="kg__sidebar">
+      <h3 class="kg__sidebar-title">Result Overview</h3>
+      @if (labelCounts().length === 0) {
+        <div class="kg__sidebar-empty">
+          Search and pick a node to start building the graph.
+        </div>
+      } @else {
+        <div class="kg__pills">
+          @for (b of labelCounts(); track b.label) {
+            <span
+              class="kg-pill"
+              [style.backgroundColor]="b.fill"
+              [style.color]="b.text"
+            >
+              {{ b.label }}({{ b.count }})
+            </span>
+          }
+        </div>
+      }
+
+      @if (stats(); as s) {
+        <footer class="kg__sidebar-stats">
+          <div><strong>{{ s.node_total | number }}</strong> nodes in DB</div>
+          <div><strong>{{ s.relationship_total | number }}</strong> relationships</div>
+        </footer>
+      }
+    </aside>
+  </div>
+</div>

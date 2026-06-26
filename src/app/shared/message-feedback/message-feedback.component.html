@@ -1,0 +1,167 @@
+<section
+  class="feedback"
+  [ngClass]="toneClass"
+  [class.feedback--open]="state === 'open'"
+  [class.feedback--submitted]="state === 'submitted'"
+  [class.feedback--disabled]="!isReady"
+  [attr.aria-label]="'Rate this response'"
+>
+  <header class="feedback__header">
+    <div class="feedback__title">
+      <span class="feedback__icon" aria-hidden="true">
+        @if (state === "submitted") {
+          <i class="bi bi-patch-check-fill"></i>
+        } @else {
+          <i class="bi bi-feather"></i>
+        }
+      </span>
+      <div class="feedback__copy">
+        <span class="feedback__label">
+          @if (state === "submitted") {
+            Feedback recorded
+            <span class="feedback__pill" aria-label="Saved">
+              <i class="bi bi-check2"></i>
+              Saved
+            </span>
+          } @else {
+            How was this response?
+          }
+        </span>
+        <span class="feedback__sub">
+          @if (state === "submitted") {
+            Hover any star to revise, your input continuously trains the
+            assistant.
+          } @else {
+            Help the assistant learn, rate from 1 to 5 and add an optional note.
+          }
+        </span>
+      </div>
+    </div>
+
+    <div class="feedback__stars-row" (mouseleave)="clearHover()">
+      <div
+        class="feedback__stars"
+        role="radiogroup"
+        aria-label="Rating from 1 to 5"
+      >
+        @for (s of stars; track s) {
+          <button
+            type="button"
+            class="feedback__star"
+            [class.feedback__star--filled]="displayedStarValue >= s"
+            [class.feedback__star--saving]="saving"
+            [attr.aria-label]="s + ' star' + (s === 1 ? '' : 's')"
+            [attr.aria-pressed]="rating === s"
+            [disabled]="!isReady || saving"
+            (click)="setDraftRating(s)"
+            (mouseenter)="setHover(s)"
+            (focus)="setHover(s)"
+            (blur)="clearHover()"
+          >
+            <i
+              class="bi"
+              [ngClass]="displayedStarValue >= s ? 'bi-star-fill' : 'bi-star'"
+            ></i>
+          </button>
+        }
+      </div>
+      <span class="feedback__rating-label" aria-live="polite">{{ ratingLabel || ' ' }}</span>
+    </div>
+  </header>
+
+  @if (state === "open") {
+    <div class="feedback__form">
+      <label
+        class="feedback__textarea-label"
+        [for]="'feedback-' + (messageId || 'msg')"
+      >
+        Add a comment <span class="feedback__optional">(optional)</span>
+      </label>
+      <textarea
+        [id]="'feedback-' + (messageId || 'msg')"
+        class="feedback__textarea"
+        rows="3"
+        [maxlength]="commentMax"
+        [(ngModel)]="draftComment"
+        [disabled]="saving"
+        placeholder="What worked well? What could be better? Anything that should be cited or fact-checked?"
+      ></textarea>
+      <div class="feedback__form-footer">
+        <span
+          class="feedback__counter"
+          [class.feedback__counter--warn]="
+            draftComment.length > commentMax - 100
+          "
+        >
+          {{ draftComment.length }} / {{ commentMax }}
+        </span>
+        <div class="feedback__actions">
+          <button
+            type="button"
+            class="feedback__btn feedback__btn--ghost"
+            (click)="cancel()"
+            [disabled]="saving"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="feedback__btn feedback__btn--primary"
+            (click)="submit()"
+            [disabled]="!canSubmit"
+          >
+            @if (saving) {
+              <span class="feedback__spinner" aria-hidden="true"></span>
+              Saving…
+            } @else if (hasFeedback) {
+              <i class="bi bi-check2-circle"></i>
+              Update feedback
+            } @else {
+              <i class="bi bi-send"></i>
+              Submit feedback
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  } @else if (state === "submitted") {
+    <div class="feedback__summary">
+      @if (feedbackComment) {
+        <div class="feedback__quote">
+          <i class="bi bi-quote feedback__quote-icon" aria-hidden="true"></i>
+          <p class="feedback__quote-text">{{ feedbackComment }}</p>
+        </div>
+      } @else {
+        <p class="feedback__quote-empty">
+          <i class="bi bi-check2-circle"></i>
+          Rated {{ rating }} / 5 — no comment added.
+        </p>
+      }
+      <div class="feedback__actions feedback__actions--summary">
+        <button
+          type="button"
+          class="feedback__btn feedback__btn--ghost"
+          (click)="open()"
+          [disabled]="saving"
+        >
+          <i class="bi bi-pencil"></i>
+          Edit
+        </button>
+        <button
+          type="button"
+          class="feedback__btn feedback__btn--danger"
+          (click)="remove()"
+          [disabled]="saving"
+        >
+          @if (saving) {
+            <span class="feedback__spinner" aria-hidden="true"></span>
+            Removing…
+          } @else {
+            <i class="bi bi-trash3"></i>
+            Remove
+          }
+        </button>
+      </div>
+    </div>
+  }
+</section>

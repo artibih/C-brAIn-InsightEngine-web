@@ -1,0 +1,32 @@
+<div class="auth-landing">
+  <div class="auth-landing__card">
+    <div class="auth-landing__logo-block">
+      <img
+        [src]="theme.logoPath()"
+        [alt]="theme.appName()"
+        class="auth-landing__logo"
+      />
+      <h1>{{ theme.appName() }}</h1>
+    </div>
+
+    <h2>Authentication Required</h2>
+    <p>
+      Please sign in to access your AI conversations and conversation history.
+    </p>
+
+    <div class="auth-landing__buttons">
+      <button class="auth-landing__btn" type="button" (click)="goLogin()">
+        <i class="bi bi-box-arrow-in-right"></i>
+        <span>Sign In</span>
+      </button>
+      <button
+        class="auth-landing__btn auth-landing__btn--outline"
+        type="button"
+        (click)="goRegister()"
+      >
+        <i class="bi bi-person-plus"></i>
+        <span>Request Access</span>
+      </button>
+    </div>
+  </div>
+</div>

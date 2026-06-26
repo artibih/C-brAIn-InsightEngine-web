@@ -1,0 +1,61 @@
+<div class="llm-selector">
+  <button
+    type="button"
+    class="llm-selector__trigger"
+    [class.llm-selector__trigger--locked]="locked"
+    [disabled]="disabled"
+    [attr.aria-haspopup]="locked ? null : 'menu'"
+    [attr.aria-expanded]="locked ? null : isOpen()"
+    [attr.aria-disabled]="locked ? true : null"
+    [title]="
+      locked
+        ? displayModel.displayName + ' · fixed for this analyzer'
+        : displayModel.displayName
+    "
+    (click)="toggle()"
+  >
+    <i class="bi llm-selector__trigger-icon" [ngClass]="displayModel.icon"></i>
+    <span class="llm-selector__trigger-label">{{ displayModel.shortName }}</span>
+    @if (locked) {
+      <i class="bi bi-lock-fill llm-selector__lock" aria-hidden="true"></i>
+    } @else {
+      <i
+        class="bi bi-chevron-down llm-selector__chevron"
+        [class.llm-selector__chevron--open]="isOpen()"
+      ></i>
+    }
+  </button>
+
+  @if (isOpen()) {
+    <div class="llm-selector__menu" role="menu" aria-label="Model">
+      <div class="llm-selector__menu-header">
+        <i class="bi bi-cpu"></i>
+        <span>Model</span>
+      </div>
+
+      @for (model of models; track model.modelKey) {
+        <button
+          type="button"
+          class="llm-selector__option"
+          [class.llm-selector__option--active]="isActive(model)"
+          role="menuitemradio"
+          [attr.aria-checked]="isActive(model)"
+          (click)="choose(model)"
+        >
+          <span class="llm-selector__option-icon">
+            <i class="bi" [ngClass]="model.icon"></i>
+          </span>
+          <span class="llm-selector__option-body">
+            <span class="llm-selector__option-name">{{ model.displayName }}</span>
+            <span class="llm-selector__option-provider">{{ model.provider }}</span>
+          </span>
+          @if (isActive(model)) {
+            <i class="bi bi-check2 llm-selector__option-check"></i>
+          }
+        </button>
+      }
+    </div>
+
+    <div class="llm-selector__backdrop" (click)="close()"></div>
+  }
+</div>

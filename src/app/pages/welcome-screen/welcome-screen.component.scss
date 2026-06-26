@@ -1,0 +1,108 @@
+
+
+@use '../../../styles/brand' as *;
+
+.chat-home {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0 24px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: $brand-white;
+}
+
+.chat-home__center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 0;
+  min-height: 0;
+}
+
+.welcome-card {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.welcome-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.welcome-card__greeting {
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0 0 10px 0;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.welcome-card__subtitle {
+  font-size: 15px;
+  color: $brand-gray-500;
+  margin: 0 auto;
+  line-height: 1.5;
+  max-width: 420px;
+}
+
+@media (max-width: $breakpoint-lg) {
+  .chat-home {
+    padding: 0 20px;
+  }
+
+  .welcome-card {
+    max-width: 520px;
+  }
+}
+
+@media (max-width: $breakpoint-md) {
+  .chat-home {
+    padding: 0 16px;
+  }
+
+  .chat-home__center {
+    padding: 16px 0;
+    align-items: flex-start;
+    padding-top: 40px;
+  }
+
+  .welcome-card {
+    max-width: 100%;
+  }
+
+  .welcome-header {
+    margin-bottom: 24px;
+  }
+
+  .welcome-card__greeting {
+    font-size: 22px;
+  }
+
+  .welcome-card__subtitle {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: $breakpoint-sm) {
+  .chat-home {
+    padding: 0 12px;
+  }
+
+  .chat-home__center {
+    padding-top: 24px;
+  }
+
+  .welcome-card__greeting {
+    font-size: 20px;
+  }
+
+  .welcome-card__subtitle {
+    font-size: 13px;
+  }
+}

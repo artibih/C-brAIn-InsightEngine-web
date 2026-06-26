@@ -1,0 +1,325 @@
+
+
+
+
+
+@use "styles/brand" as *;
+
+
+@import "bootstrap-icons/font/bootstrap-icons.css";
+
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&family=Raleway:wght@500;600;700&family=Fira+Code:wght@400;500&display=swap');
+
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: $font-size-base;
+  line-height: 1.5;
+  color: $brand-gray-900;
+  background-color: $brand-white;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: $font-weight-semibold;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+h1 { font-size: $font-size-4xl; }
+h2 { font-size: $font-size-3xl; }
+h3 { font-size: $font-size-2xl; }
+h4 { font-size: $font-size-xl; }
+h5 { font-size: $font-size-lg; }
+h6 { font-size: $font-size-base; }
+
+p {
+  margin: 0 0 $spacing-4 0;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color $transition-fast;
+
+  &:hover {
+    color: var(--accent-hover);
+  }
+}
+
+
+::selection {
+  background-color: var(--selection-bg);
+  color: var(--color-primary-dark);
+}
+
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: $brand-gray-100;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $brand-gray-300;
+  border-radius: 4px;
+
+  &:hover {
+    background: $brand-gray-400;
+  }
+}
+
+
+.tp-btn i.bi::before {
+  font-size: 16px;
+  line-height: 1;
+}
+
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+  padding: $spacing-3 $spacing-5;
+  font-family: var(--font-body);
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  border-radius: $radius-lg;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &--primary {
+    @include button-primary;
+  }
+
+  &--secondary {
+    @include button-secondary;
+  }
+
+  &--accent {
+    @include button-accent;
+  }
+
+  &--ghost {
+    background: transparent;
+    color: var(--color-text-secondary);
+    border: none;
+
+    &:hover {
+      color: var(--color-text-primary);
+      background: var(--color-bg-tertiary);
+    }
+  }
+
+  &--danger {
+    background: $brand-error;
+    color: $brand-white;
+    border: none;
+
+    &:hover {
+      background: $brand-error-darker;
+    }
+  }
+
+  &--sm {
+    padding: $spacing-2 $spacing-3;
+    font-size: $font-size-xs;
+  }
+
+  &--lg {
+    padding: $spacing-4 $spacing-6;
+    font-size: $font-size-base;
+  }
+}
+
+
+.input {
+  @include input-style;
+  width: 100%;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+
+  label {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: var(--color-text-secondary);
+  }
+}
+
+
+.card {
+  @include card;
+  padding: $spacing-6;
+}
+
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: $spacing-1 $spacing-3;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  border-radius: $radius-sm;
+
+  &--primary {
+    background: var(--color-primary-10);
+    color: var(--color-primary);
+  }
+
+  &--accent {
+    background: var(--color-accent-10);
+    color: var(--color-accent);
+  }
+
+  &--success {
+    background: $brand-success-light;
+    color: $brand-success;
+  }
+
+  &--warning {
+    background: $brand-warning-light;
+    color: $brand-warning;
+  }
+
+  &--error {
+    background: $brand-error-light;
+    color: $brand-error;
+  }
+}
+
+
+.code-block {
+  background-color: #1e1e1e !important;
+  border-radius: $radius-lg;
+  overflow: hidden;
+}
+
+.code-block__header {
+  background-color: #2d2d2d !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.code-block__lang {
+  color: #9ca3af !important;
+}
+
+.code-block__copy {
+  color: #9ca3af !important;
+
+  &:hover {
+    color: #ffffff !important;
+  }
+}
+
+pre.code-block__content {
+  margin: 0;
+  padding: 16px;
+  background-color: #1e1e1e !important;
+  color: #e5e7eb !important;
+}
+
+.code-block__content code,
+pre.code-block__content code,
+.code-block code {
+  font-family: var(--font-mono);
+  color: #e5e7eb !important;
+  background: transparent !important;
+}
+
+
+.text-primary { color: var(--color-primary) !important; }
+.text-accent { color: var(--color-accent) !important; }
+.text-secondary { color: var(--color-text-secondary) !important; }
+.text-muted { color: var(--color-text-muted) !important; }
+.text-success { color: var(--color-success) !important; }
+.text-warning { color: var(--color-warning) !important; }
+.text-error { color: var(--color-error) !important; }
+
+.bg-primary { background-color: var(--color-bg-primary) !important; }
+.bg-secondary { background-color: var(--color-bg-secondary) !important; }
+.bg-tertiary { background-color: var(--color-bg-tertiary) !important; }
+
+.font-heading { font-family: var(--font-heading) !important; }
+.font-body { font-family: var(--font-body) !important; }
+.font-mono { font-family: var(--font-mono) !important; }
+
+
+.skeleton {
+  background: linear-gradient(90deg, $brand-gray-200 25%, $brand-gray-100 50%, $brand-gray-200 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: $radius-md;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-fadeIn { animation: fadeIn $transition-normal; }
+.animate-slideUp { animation: slideUp $transition-normal; }
+.animate-spin { animation: spin 1s linear infinite; }
+
+
+*:focus-visible {
+  outline: 2px solid var(--focus-visible-color);
+  outline-offset: 2px;
+}

@@ -1,0 +1,11 @@
+<button
+  [type]="type"
+  class="tp-btn"
+  [ngClass]="classes"
+  [disabled]="disabled"
+  (click)="onClick($event)"
+>
+  <span class="tp-btn__inner">
+    <ng-content></ng-content>
+  </span>
+</button>

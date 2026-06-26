@@ -1,0 +1,44 @@
+<div class="chat-input-wrapper">
+  <div class="chat-input" [class.chat-input--focused]="isFocused">
+    <textarea
+      #ta
+      class="chat-input__textarea"
+      [ngModel]="value"
+      (ngModelChange)="onValueChange($event)"
+      [placeholder]="placeholder"
+      [disabled]="disabled || loading"
+      (focus)="onFocus()"
+      (blur)="onBlur()"
+      (keydown)="onKeyDown($event)"
+      rows="1"
+    ></textarea>
+    <button
+      class="chat-input__send"
+      type="button"
+      [disabled]="disabled || loading"
+      [attr.aria-disabled]="(!value.trim() && required) ? 'true' : null"
+      [class.chat-input__send--empty]="!value.trim() && required"
+      (click)="onSend()"
+      aria-label="Send message"
+      >
+      @if (loading) {
+        <span class="chat-input__spinner" aria-hidden="true"></span>
+      }
+      @if (!loading) {
+        <i class="bi bi-send"></i>
+      }
+    </button>
+
+  </div>
+
+  @if (showEmptyError) {
+    <div class="field-error">
+      {{ errorText }}
+    </div>
+  }
+  @if (isNearLimit) {
+    <div class="char-counter" [class.char-counter--over]="isOverLimit">
+      {{ value.length | number }} / {{ maxLength | number }}
+    </div>
+  }
+</div>

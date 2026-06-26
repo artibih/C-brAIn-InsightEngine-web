@@ -1,0 +1,264 @@
+@let model = vm();
+@if (model.hasAnyData || isStreaming()) {
+  <div class="anr">
+
+    
+    @if (isStreaming() && !model.hasAnyData) {
+      <div class="anr__loading">
+        <div class="anr__loading-icon">
+          <div class="anr__spinner"></div>
+        </div>
+        <div class="anr__loading-text">
+          <span class="anr__loading-title">Analyzing your data...</span>
+          <span class="anr__loading-subtitle">Running statistical analysis and generating insights</span>
+        </div>
+      </div>
+    }
+
+    
+    @if (model.findings.length) {
+      <div class="anr__block">
+        <div class="anr__block-header" (click)="toggleFindings()">
+          <span class="anr__block-number">01</span>
+          <span class="anr__block-title">SYNTHESIZER</span>
+          <span class="anr__block-count">{{ model.findings.length }} findings</span>
+          <i class="bi" [ngClass]="findingsCollapsed ? 'bi-chevron-down' : 'bi-chevron-up'"></i>
+        </div>
+
+        @if (!findingsCollapsed) {
+          <div class="anr__block-body">
+            <div class="anr__findings">
+              @for (finding of model.findings; track $index) {
+                <div class="anr__finding">
+                  <span class="anr__finding-label">{{ getFindingLabel($index) }}</span>
+                  <p class="anr__finding-detail" [innerHTML]="linkify(finding.detail)"></p>
+                  @if (finding.citations.length) {
+                    <span class="anr__finding-citations">
+                      @for (cit of finding.citations; track cit.citationNumber) {
+                        <a
+                          class="anr__finding-cite"
+                          [href]="cit.doiUrl || ('https://doi.org/' + cit.doi)"
+                          [class.anr__finding-cite--no-link]="!cit.doiUrl && !cit.doi"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          [title]="cit.title || ''"
+                        >[{{ cit.citationNumber }}]</a>
+                      }
+                    </span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    
+    @if (model.statistical; as stat) {
+      <div class="anr__block">
+        <div class="anr__block-header" (click)="toggleStatistical()">
+          <span class="anr__block-number">02</span>
+          <span class="anr__block-title">STATISTICAL ANALYSIS</span>
+          <i class="bi" [ngClass]="statisticalCollapsed ? 'bi-chevron-down' : 'bi-chevron-up'"></i>
+        </div>
+
+        @if (!statisticalCollapsed) {
+          <div class="anr__block-body">
+
+            
+            @if (stat.summary) {
+              <p class="anr__summary">{{ stat.summary }}</p>
+            }
+
+            
+            @if (stat.images.length) {
+              <div class="anr__gallery">
+                @for (img of stat.images; track img.url) {
+                  <div class="anr__gallery-item" (click)="openLightbox(img)" #galleryItem>
+                    <img [signedSrc]="img.url" [alt]="img.label" loading="lazy" hideIfTransparent (error)="galleryItem.style.display='none'" />
+                    <span class="anr__gallery-label">{{ img.label }}</span>
+                  </div>
+                }
+              </div>
+            }
+
+            
+            @if (stat.tableRows.length) {
+              <div class="anr__table-wrap">
+                <table class="anr__table">
+                  <thead>
+                    <tr>
+                      <th class="col-metric">Metric</th>
+                      <th class="col-value">Value</th>
+                      <th class="col-pvalue">p-Value</th>
+                      <th class="col-sig">Significant</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of stat.tableRows; track row.metric) {
+                      <tr [class.row--sig]="row.significant === true">
+                        <td class="col-metric">{{ row.metric }}</td>
+                        <td class="col-value">{{ row.value }}</td>
+                        <td class="col-pvalue">{{ row.pValue ?? '-' }}</td>
+                        <td class="col-sig">
+                          @if (row.significant === true) {
+                            <span class="anr__sig-badge anr__sig-badge--yes">Yes</span>
+                          } @else if (row.significant === false) {
+                            <span class="anr__sig-badge anr__sig-badge--no">No</span>
+                          } @else {
+                            <span class="anr__sig-badge anr__sig-badge--na">-</span>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+
+          
+            @for (dt of stat.dynamicTables; track $index) {
+              <div class="anr__dynamic-table-section">
+                @if (dt.title) {
+                  <h4 class="anr__dynamic-table-title">{{ dt.title }}</h4>
+                }
+                <div class="anr__table-wrap">
+                  <table class="anr__table anr__table--dynamic">
+                    <thead>
+                      <tr>
+                        @for (header of dt.headers; track header) {
+                          <th>{{ header }}</th>
+                        }
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (row of getPreviewRows(dt); track $index) {
+                        <tr>
+                          @for (cell of row; track $index) {
+                            <td [innerHTML]="formatCellWithCitations(cell)"></td>
+                          }
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+                @if (dt.totalRows > 3) {
+                  <button class="anr__view-full-btn" (click)="openTableModal(dt)">
+                    <i class="bi bi-table"></i>
+                    View Full Table ({{ dt.totalRows }} rows)
+                  </button>
+                }
+              </div>
+            }
+
+          </div>
+        }
+      </div>
+    }
+
+    
+    @if (modalTable(); as mt) {
+      <div class="anr__modal-overlay" (click)="closeTableModal()">
+        <div class="anr__modal" (click)="$event.stopPropagation()">
+          <div class="anr__modal-header">
+            <h3 class="anr__modal-title">
+              @if (mt.title) {
+                {{ mt.title }}
+              } @else {
+                Structured Results
+              }
+            </h3>
+            <button class="anr__modal-close" (click)="closeTableModal()">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+          <div class="anr__modal-body">
+            <div class="anr__table-wrap">
+              <table class="anr__table anr__table--dynamic anr__table--modal">
+                <thead>
+                  <tr>
+                    @for (header of mt.headers; track header) {
+                      <th>{{ header }}</th>
+                    }
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of mt.rows; track $index) {
+                    <tr>
+                      @for (cell of row; track $index) {
+                        <td [innerHTML]="formatCellWithCitations(cell)"></td>
+                      }
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    
+    @if (model.critical && !model.critical.needsRevision) {
+      <div class="anr__block">
+        <div class="anr__block-header anr__block-header--static">
+          <span class="anr__block-number">03</span>
+          <span class="anr__block-title">CRITICAL REVIEW</span>
+        </div>
+        <div class="anr__block-body">
+          <div class="anr__section">
+            <span class="anr__section-label">Needs Revision</span>
+            <p class="anr__text">{{ model.critical.needsRevision ? 'Yes' : 'No' }}</p>
+          </div>
+          <div class="anr__section">
+            <span class="anr__section-label">Issues</span>
+            @if (model.critical.issues.length) {
+              <ul class="anr__list">
+                @for (issue of model.critical.issues; track $index) {
+                  <li>{{ issue }}</li>
+                }
+              </ul>
+            } @else {
+              <p class="anr__text anr__text--empty">No issues found</p>
+            }
+          </div>
+          <div class="anr__section">
+            <span class="anr__section-label">Strengths</span>
+            @if (model.critical.strengths.length) {
+              <ul class="anr__list">
+                @for (s of model.critical.strengths; track $index) {
+                  <li>{{ s }}</li>
+                }
+              </ul>
+            } @else {
+              <p class="anr__text anr__text--empty">—</p>
+            }
+          </div>
+          <div class="anr__section">
+            <span class="anr__section-label">Validation Summary</span>
+            @if (model.critical.validationSummary) {
+              <p class="anr__text" [innerHTML]="linkify(model.critical.validationSummary)"></p>
+            } @else {
+              <p class="anr__text anr__text--empty">—</p>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    
+    @if (lightboxImage(); as lbImg) {
+      <div class="anr__lightbox" (click)="closeLightbox()">
+        <div class="anr__lightbox-content" (click)="$event.stopPropagation()">
+          <button class="anr__lightbox-close" (click)="closeLightbox()">
+            <i class="bi bi-x-lg"></i>
+          </button>
+          <img [signedSrc]="lbImg.url" [alt]="lbImg.label" />
+          <span class="anr__lightbox-label">{{ lbImg.label }}</span>
+        </div>
+      </div>
+    }
+
+  </div>
+}

@@ -1,0 +1,136 @@
+<header class="app-header">
+  
+  <div class="app-header__left">
+    <button
+      type="button"
+      class="app-header__sidebar-toggle"
+      (click)="onToggleSidebar()"
+      aria-label="Toggle sidebar"
+      >
+      <i class="bi bi-layout-sidebar-inset"></i>
+    </button>
+    <img
+      [src]="theme.iconPath()"
+      [alt]="theme.appName()"
+      class="app-header__logo"
+      />
+    <div class="app-header__brand">
+      <div class="app-header__title">{{ theme.appTitle() }}</div>
+      <div class="app-header__subtitle">{{ theme.appSubtitle() }}</div>
+    </div>
+  </div>
+
+  
+  @if (showTabs) {
+    @if (activeMode === 'reviewer') {
+      
+      <nav class="app-header__tabs app-header__tabs--reviewer">
+        <button
+          type="button"
+          class="app-header__tab"
+          [class.app-header__tab--active]="activeTab === 'reviewer_final'"
+          (click)="onTabChange('reviewer_final')"
+          title="Final Result"
+          >
+          <i class="bi bi-trophy"></i>
+          <span class="app-header__tab-label">Final Result</span>
+        </button>
+        <button
+          type="button"
+          class="app-header__tab"
+          [class.app-header__tab--active]="activeTab === 'reviewer_journal_editor'"
+          (click)="onTabChange('reviewer_journal_editor')"
+          title="Journal Editor"
+          >
+          <i class="bi bi-journal-bookmark"></i>
+          <span class="app-header__tab-label">Journal Editor</span>
+        </button>
+        <button
+          type="button"
+          class="app-header__tab"
+          [class.app-header__tab--active]="activeTab === 'reviewer_methodological'"
+          (click)="onTabChange('reviewer_methodological')"
+          title="Methodological"
+          >
+          <i class="bi bi-clipboard-data"></i>
+          <span class="app-header__tab-label">Methodological</span>
+        </button>
+        <button
+          type="button"
+          class="app-header__tab"
+          [class.app-header__tab--active]="activeTab === 'reviewer_domain_expert'"
+          (click)="onTabChange('reviewer_domain_expert')"
+          title="Domain Expert"
+          >
+          <i class="bi bi-mortarboard"></i>
+          <span class="app-header__tab-label">Domain Expert</span>
+        </button>
+        <button
+          type="button"
+          class="app-header__tab app-header__tab--benchmark"
+          [class.app-header__tab--active]="activeTab === 'reviewer_benchmark_evidence'"
+          (click)="onTabChange('reviewer_benchmark_evidence')"
+          title="Benchmark Evidence"
+          >
+          <i class="bi bi-patch-check-fill"></i>
+          <span class="app-header__tab-label">Benchmark Evidence</span>
+        </button>
+      </nav>
+    } @else {
+      <nav class="app-header__tabs">
+        <button
+          type="button"
+          class="app-header__tab"
+          [class.app-header__tab--active]="activeTab === 'results'"
+          (click)="onTabChange('results')"
+          >
+          <i class="bi bi-stars"></i>
+          <span class="app-header__tab-label">{{ activeModeName }}</span>
+        </button>
+        @if (activeMode !== 'literature') {
+        <button
+          type="button"
+          class="app-header__tab"
+          [class.app-header__tab--active]="activeTab === 'reasoning'"
+          (click)="onTabChange('reasoning')"
+          >
+          <i class="bi bi-diagram-3"></i>
+          <span class="app-header__tab-label">Reasoning</span>
+          @if (reasoningStepsCount > 0) {
+            <span class="app-header__tab-count">
+              {{ reasoningStepsCount }}
+            </span>
+          }
+        </button>
+        }
+        <button
+          type="button"
+          class="app-header__tab"
+          [class.app-header__tab--active]="activeTab === 'references'"
+          (click)="onTabChange('references')"
+          >
+          <i class="bi bi-journal-bookmark"></i>
+          <span class="app-header__tab-label">References</span>
+          @if (referencesCount > 0) {
+            <span class="app-header__tab-count">{{ referencesCount }}</span>
+          }
+        </button>
+      </nav>
+    }
+  }
+
+  
+  <div class="app-header__right">
+    <span class="app-header__welcome">
+      {{ userEmail || 'Guest' }}
+    </span>
+    <tp-button
+      variant="secondary"
+      size="sm"
+      (buttonClick)="onSignOut()"
+      >
+      <i class="bi bi-box-arrow-right"></i>
+      Sign Out
+    </tp-button>
+  </div>
+</header>

@@ -1,0 +1,23 @@
+{
+  "/auth-api": {
+    "target": "http://localhost:5001",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": { "^/auth-api": "" },
+    "logLevel": "debug"
+  },
+  "/api": {
+    "target": "http://localhost:5000",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/signalr": {
+    "target": "http://localhost:5000",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": { "^/signalr": "/hubs/cbrain-chat" },
+    "ws": true,
+    "logLevel": "debug"
+  }
+}

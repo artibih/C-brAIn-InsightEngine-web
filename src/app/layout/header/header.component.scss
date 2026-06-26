@@ -1,0 +1,385 @@
+
+@use '../../../styles/brand' as *;
+
+.app-header {
+  height: $header-height;
+  padding: 0 $spacing-6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid $brand-gray-100;
+  background: $brand-white;
+  gap: $spacing-6;
+}
+
+.app-header__left {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  flex-shrink: 0;
+}
+
+.app-header__sidebar-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: $radius-md;
+  border: none;
+  background-color: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: $brand-gray-500;
+  font-size: 18px;
+  transition: all $transition-fast;
+
+  &:hover {
+    background-color: $brand-gray-100;
+    color: var(--color-primary);
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.app-header__logo {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  display: block;
+  border-radius: 7px;
+}
+
+.app-header__brand {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.app-header__title {
+  font-family: $font-heading;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-lg;
+  color: var(--color-primary);
+  letter-spacing: -0.02em;
+}
+
+.app-header__subtitle {
+  font-size: $font-size-xs;
+  color: $brand-gray-500;
+}
+
+.app-header__tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background-color: $brand-gray-100;
+  border-radius: $radius-lg;
+}
+
+.app-header__tab {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: 10px 16px;
+  border: none;
+  border-radius: $radius-md;
+  background-color: transparent;
+  color: $brand-gray-500;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  i {
+    font-size: 14px;
+  }
+
+  &:hover:not(.app-header__tab--active) {
+    background-color: rgba($brand-white, 0.6);
+    color: $brand-gray-700;
+  }
+
+  &.app-header__tab--active {
+    background: $brand-white;
+    color: $brand-gray-900;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+    i {
+      color: var(--color-accent);
+    }
+  }
+}
+
+.app-header__tab--benchmark {
+  position: relative;
+  margin-left: 9px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 18px;
+    background: $brand-gray-300;
+    border-radius: 1px;
+  }
+
+  i {
+    color: var(--color-accent);
+    opacity: 0.62;
+  }
+
+  .app-header__tab-label {
+    letter-spacing: 0.01em;
+  }
+
+  &:hover:not(.app-header__tab--active) {
+    background: var(--color-accent-05);
+    color: $brand-gray-700;
+
+    i { opacity: 0.85; }
+  }
+
+  &.app-header__tab--active {
+
+    background:
+      linear-gradient(180deg, $brand-white 0%, var(--color-accent-05) 100%);
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.08),
+      inset 0 0 0 1px var(--color-accent-10);
+
+    i {
+      color: var(--color-accent);
+      opacity: 1;
+    }
+  }
+}
+
+.app-header__tab-label {
+  white-space: nowrap;
+}
+
+
+
+.app-header__tab-count {
+  font-size: 11px;
+  font-weight: $font-weight-semibold;
+  color: $brand-white;
+  background-color: var(--btn-primary-bg);
+  padding: 2px 6px;
+  border-radius: $radius-full;
+  min-width: 18px;
+  text-align: center;
+
+  .app-header__tab--active & {
+    background-color: var(--btn-primary-bg);
+    color: $brand-white;
+  }
+}
+
+.app-header__right {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  font-size: $font-size-sm;
+  flex-shrink: 0;
+}
+
+.app-header__welcome {
+  color: $brand-gray-600;
+  font-weight: $font-weight-medium;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: $brand-success;
+    border-radius: 50%;
+    margin-right: $spacing-2;
+  }
+}
+
+.app-header__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: $radius-md;
+  background: var(--btn-primary-bg);
+  color: $brand-white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
+
+@media (max-width: 1600px) {
+  .app-header__tabs--reviewer {
+    gap: 2px;
+    padding: 3px;
+
+    .app-header__tab {
+      padding: 8px 12px;
+      font-size: $font-size-xs;
+
+      i {
+        font-size: 13px;
+      }
+    }
+  }
+
+  .app-header__welcome {
+    max-width: 170px;
+  }
+}
+
+@media (max-width: $breakpoint-xl) {
+  .app-header__tabs--reviewer {
+    .app-header__tab {
+      padding: 8px 10px;
+    }
+
+    .app-header__tab:not(.app-header__tab--active) .app-header__tab-label {
+      display: none;
+    }
+  }
+
+  .app-header__welcome {
+    max-width: 150px;
+  }
+}
+
+@media (max-width: $breakpoint-lg) {
+  .app-header {
+    padding: 0 $spacing-4;
+  }
+
+  .app-header__logo {
+    width: 32px;
+    height: 32px;
+  }
+
+  .app-header__welcome {
+    max-width: 120px;
+  }
+}
+
+@media (max-width: $breakpoint-md) {
+  .app-header {
+    height: 56px;
+    padding: 0 $spacing-3;
+    gap: $spacing-3;
+  }
+
+  .app-header__left {
+    gap: $spacing-2;
+  }
+
+  .app-header__sidebar-toggle {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  .app-header__brand {
+    display: none;
+  }
+
+  .app-header__logo {
+    width: 28px;
+    height: 28px;
+  }
+
+  .app-header__tabs {
+    padding: 3px;
+    gap: 2px;
+  }
+
+  .app-header__tab {
+    padding: $spacing-2 $spacing-3;
+  }
+
+  .app-header__tab-label {
+    display: none;
+  }
+
+  .app-header__tab-count {
+    font-size: 10px;
+    min-width: 16px;
+    padding: 1px 4px;
+  }
+
+  .app-header__right {
+    gap: $spacing-2;
+  }
+
+  .app-header__welcome {
+    display: none;
+  }
+
+  .app-header__avatar {
+    width: 32px;
+    height: 32px;
+    font-size: $font-size-xs;
+  }
+}
+
+@media (max-width: $breakpoint-sm) {
+  .app-header {
+    height: 52px;
+    padding: 0 $spacing-2;
+    gap: $spacing-2;
+  }
+
+  .app-header__left {
+    gap: $spacing-1;
+  }
+
+  .app-header__sidebar-toggle {
+    width: 32px;
+    height: 32px;
+    font-size: 15px;
+    border-radius: $radius-sm;
+  }
+
+  .app-header__logo {
+    width: 26px;
+    height: 26px;
+  }
+
+  .app-header__tabs {
+    padding: 2px;
+    border-radius: $radius-md;
+  }
+
+  .app-header__tab {
+    padding: 6px 10px;
+    border-radius: $radius-sm;
+
+    i {
+      font-size: 13px;
+    }
+  }
+
+  .app-header__tab-count {
+    font-size: 9px;
+    min-width: 14px;
+    padding: 1px 3px;
+  }
+
+  .app-header__avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+    border-radius: $radius-sm;
+  }
+}

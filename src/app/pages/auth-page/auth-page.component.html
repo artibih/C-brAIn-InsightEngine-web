@@ -1,0 +1,267 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <button class="auth-back" (click)="onBack()" type="button">
+      ← Back to {{ theme.appName() }}
+    </button>
+
+    <div class="auth-header">
+      <div class="auth-logo-block">
+        <img
+          [src]="theme.logoPath()"
+          [alt]="theme.appName()"
+          class="auth-logo"
+        />
+        <h1>{{ theme.appName() }}</h1>
+      </div>
+
+      @if (!isRegister) {
+        <h2>Welcome back</h2>
+        <p>Sign in to access your AI conversations and settings</p>
+      } @else {
+        <h2>Request Access</h2>
+        <p>Fill in your details to request access to {{ theme.appName() }}</p>
+      }
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form">
+      @if (isRegister) {
+        <div class="auth-field">
+          <input
+            type="text"
+            formControlName="firstName"
+            placeholder="First name"
+            [class.is-invalid]="
+              firstName?.invalid && (firstName?.touched || firstName?.dirty)
+            "
+          />
+          @if (firstName?.invalid && (firstName?.touched || firstName?.dirty)) {
+            <div class="field-error">First name is required</div>
+          }
+        </div>
+        <div class="auth-field">
+          <input
+            type="text"
+            formControlName="lastName"
+            placeholder="Last name"
+            [class.is-invalid]="
+              lastName?.invalid && (lastName?.touched || lastName?.dirty)
+            "
+          />
+          @if (lastName?.invalid && (lastName?.touched || lastName?.dirty)) {
+            <div class="field-error">Last name is required</div>
+          }
+        </div>
+        <div class="auth-field">
+          @if (!isCreatingNew) {
+            <select
+              formControlName="organizationId"
+              [class.is-invalid]="
+                organizationId?.invalid &&
+                (organizationId?.touched || organizationId?.dirty)
+              "
+            >
+              <option [ngValue]="null" disabled>
+                Select your organization
+              </option>
+              @for (org of organizations; track org.id) {
+                <option [ngValue]="org.id">{{ org.name }}</option>
+              }
+            </select>
+            @if (
+              organizationId?.invalid &&
+              (organizationId?.touched || organizationId?.dirty)
+            ) {
+              <div class="field-error">Organization is required</div>
+            }
+            <button
+              type="button"
+              class="org-toggle"
+              (click)="toggleCreateNew()"
+            >
+              + Create New Organization
+            </button>
+          } @else {
+            <input
+              type="text"
+              formControlName="newOrganizationName"
+              placeholder="New organization name"
+              [class.is-invalid]="
+                newOrganizationName?.invalid &&
+                (newOrganizationName?.touched || newOrganizationName?.dirty)
+              "
+            />
+            @if (
+              newOrganizationName?.invalid &&
+              (newOrganizationName?.touched || newOrganizationName?.dirty)
+            ) {
+              <div class="field-error">Organization name is required</div>
+            }
+            <button
+              type="button"
+              class="org-toggle"
+              (click)="toggleCreateNew()"
+            >
+              Select existing organization
+            </button>
+          }
+        </div>
+      }
+
+      <div class="auth-field">
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="Email address"
+          [class.is-invalid]="
+            email?.invalid && (email?.touched || email?.dirty)
+          "
+        />
+        @if (email?.invalid && (email?.touched || email?.dirty)) {
+          <div class="field-error">
+            @if (email?.errors?.["required"]) {
+              <span>Email is required</span>
+            }
+            @if (email?.errors?.["email"]) {
+              <span>Enter a valid email</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="auth-field">
+        <input
+          type="password"
+          formControlName="password"
+          placeholder="Password"
+          [class.is-invalid]="
+            (password?.invalid ||
+              (isRegister && !isPasswordValid && password?.value)) &&
+            (password?.touched || password?.dirty)
+          "
+          (input)="isRegister && validatePassword()"
+        />
+        @if (password?.invalid && (password?.touched || password?.dirty)) {
+          <div class="field-error">Password is required</div>
+        }
+        @if (isRegister) {
+          <div
+            class="password-requirements"
+            [class.password-requirements--touched]="
+              password?.touched || password?.dirty
+            "
+          >
+            <div class="password-requirements__title">
+              Password must contain:
+            </div>
+            <ul class="password-requirements__list">
+              <li [class.met]="hasMinLength">
+                <i class="requirement-icon"></i>
+                At least 8 characters
+              </li>
+              <li [class.met]="hasUppercase">
+                <i class="requirement-icon"></i>
+                At least one uppercase letter
+              </li>
+              <li [class.met]="hasLowercase">
+                <i class="requirement-icon"></i>
+                At least one lowercase letter
+              </li>
+              <li [class.met]="hasDigit">
+                <i class="requirement-icon"></i>
+                At least one digit
+              </li>
+              <li [class.met]="hasSpecialChar">
+                <i class="requirement-icon"></i>
+                At least one special character
+              </li>
+            </ul>
+          </div>
+        }
+      </div>
+
+      @if (isRegister) {
+        <div class="auth-field">
+          <textarea
+            formControlName="justification"
+            placeholder="Why do you need access?"
+            rows="3"
+            [class.is-invalid]="
+              justification?.invalid &&
+              (justification?.touched || justification?.dirty)
+            "
+          ></textarea>
+          @if (
+            justification?.invalid &&
+            (justification?.touched || justification?.dirty)
+          ) {
+            <div class="field-error">Justification is required</div>
+          }
+        </div>
+
+        <div class="auth-field auth-eula">
+          @if (!eulaAccepted) {
+            <button type="button" class="auth-eula__btn" (click)="openEula()">
+              <i class="bi bi-file-earmark-text"></i>
+              Review &amp; accept the End User License Agreement
+            </button>
+            @if (eulaAttempted) {
+              <div class="field-error">
+                You must accept the End User License Agreement to continue
+              </div>
+            }
+          } @else {
+            <div class="auth-eula__accepted">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>End User License Agreement accepted</span>
+              <button
+                type="button"
+                class="auth-eula__review"
+                (click)="openEula()"
+              >
+                Review
+              </button>
+            </div>
+          }
+        </div>
+      }
+
+      <button
+        class="auth-submit"
+        type="submit"
+        [disabled]="form.invalid || loading || (isRegister && !isPasswordValid)"
+      >
+        {{
+          loading
+            ? isRegister
+              ? "Submitting…"
+              : "Signing in…"
+            : isRegister
+              ? "Submit Request"
+              : "Sign In"
+        }}
+      </button>
+    </form>
+
+    <div class="auth-switch">
+      @if (!isRegister) {
+        <div class="auth-switch__text">Don't have an account?</div>
+        <button type="button" class="auth-switch__link" (click)="goRegister()">
+          Request access
+        </button>
+      } @else {
+        <div class="auth-switch__text">Already have an account?</div>
+        <button type="button" class="auth-switch__link" (click)="goLogin()">
+          Sign in instead
+        </button>
+      }
+    </div>
+  </div>
+</div>
+
+@if (showEula) {
+  <app-eula-dialog
+    mode="review"
+    (accept)="onEulaAccept($event)"
+    (decline)="onEulaDecline()"
+  ></app-eula-dialog>
+}

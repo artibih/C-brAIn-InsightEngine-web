@@ -1,0 +1,83 @@
+@use '../../../styles/brand' as *;
+
+.likert {
+  margin-bottom: $spacing-5;
+
+  &__label {
+    font-family: $font-body;
+    font-size: $font-size-sm;
+    font-weight: 500;
+    color: $brand-gray-800;
+    margin: 0 0 $spacing-2;
+  }
+
+  &__options {
+    display: flex;
+    gap: 2px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  &__option {
+    flex: 1;
+    padding: $spacing-3 $spacing-2;
+    border: none;
+    background: $brand-gray-50;
+    color: $brand-gray-600;
+    font-family: $font-body;
+    font-size: $font-size-xs;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 150ms ease-out;
+    text-align: center;
+    line-height: 1.3;
+
+    &:hover:not(:disabled):not(.likert__option--selected) {
+      background: $brand-gray-100;
+      color: $brand-gray-800;
+    }
+
+    &--selected {
+      background: var(--color-primary);
+      color: $brand-white;
+      font-weight: 600;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    &-short {
+      display: none;
+    }
+  }
+
+  &--error {
+    .likert__options {
+      box-shadow: 0 0 0 2px var(--color-error);
+      border-radius: 8px;
+    }
+  }
+
+  &__error {
+    font-family: $font-body;
+    font-size: $font-size-xs;
+    color: var(--color-error);
+    margin: $spacing-1 0 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .likert__option {
+    padding: $spacing-2 $spacing-1;
+
+    &-full {
+      display: none;
+    }
+
+    &-short {
+      display: inline;
+    }
+  }
+}

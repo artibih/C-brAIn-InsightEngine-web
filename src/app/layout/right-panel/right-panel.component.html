@@ -1,0 +1,213 @@
+<aside
+  class="right-panel"
+  [class.right-panel--collapsed]="collapsed"
+  >
+  
+  <button
+    type="button"
+    class="right-panel__toggle"
+    (click)="onToggleCollapse()"
+    [title]="collapsed ? 'Expand panel' : 'Collapse panel'"
+    >
+    <i class="bi" [class.bi-chevron-left]="!collapsed" [class.bi-chevron-right]="collapsed"></i>
+  </button>
+
+  
+  @if (!collapsed) {
+    <div class="right-panel__content">
+      
+      <nav class="right-panel__tabs">
+        @for (tab of tabs; track tab) {
+          <button
+            type="button"
+            class="right-panel__tab"
+            [class.right-panel__tab--active]="activeTab === tab.id"
+            (click)="onTabChange(tab.id)"
+            [title]="tab.label"
+            >
+            <i class="bi" [ngClass]="tab.icon"></i>
+            <span>{{ tab.label }}</span>
+          </button>
+        }
+      </nav>
+      
+      <div class="right-panel__body">
+        
+        @if (activeTab === 'citations') {
+          <div class="tab-content">
+            <div class="tab-content__header">
+              <h3>References</h3>
+              @if (citations.length) {
+                <span class="tab-content__count">
+                  {{ citations.length }}
+                </span>
+              }
+            </div>
+            
+            @if (citations.length === 0) {
+              <div class="tab-content__empty">
+                <i class="bi bi-journal-bookmark"></i>
+                <p>No citations yet</p>
+                <span>Citations will appear here as the AI references sources</span>
+              </div>
+            }
+            
+            @if (citations.length > 0) {
+              <div class="citations-list">
+                @for (citation of citations; track citation) {
+                  <div
+                    class="citation-card"
+                    [class.citation-card--highlighted]="highlightedCitationId === citation.id"
+                    >
+                    <div class="citation-card__index">[{{ citation.index }}]</div>
+                    <div class="citation-card__content">
+                      <h4 class="citation-card__title">{{ citation.title }}</h4>
+                      <p class="citation-card__authors">{{ formatAuthors(citation.authors) }}</p>
+                      @if (citation.journal || citation.year) {
+                        <p class="citation-card__meta">
+                          @if (citation.journal) {
+                            <span>{{ citation.journal }}</span>
+                          }
+                          @if (citation.journal && citation.year) {
+                            <span> · </span>
+                          }
+                          @if (citation.year) {
+                            <span>{{ citation.year }}</span>
+                          }
+                        </p>
+                      }
+                      @if (citation.relevanceScore) {
+                        <div class="citation-card__relevance">
+                          <span class="relevance-label">Relevance:</span>
+                          <div class="relevance-bar">
+                            <div
+                              class="relevance-bar__fill"
+                              [style.width.%]="citation.relevanceScore * 100"
+                            ></div>
+                          </div>
+                        </div>
+                      }
+                      <div class="citation-card__actions">
+                        <button
+                          type="button"
+                          class="citation-card__btn"
+                          (click)="onCitationSelect(citation)"
+                          title="View details"
+                          >
+                          <i class="bi bi-eye"></i> Details
+                        </button>
+                        @if (canOpenWithHighlight(citation)) {
+                          <button
+                            type="button"
+                            class="citation-card__btn citation-card__btn--primary"
+                            (click)="openWithHighlight(citation)"
+                            title="Open source with highlight"
+                            >
+                            <i class="bi bi-box-arrow-up-right"></i> Open
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+        
+        @if (activeTab === 'details') {
+          <div class="tab-content">
+            <div class="tab-content__header">
+              <h3>Details</h3>
+            </div>
+            
+            @if (!selectedCitation) {
+              <div class="tab-content__empty">
+                <i class="bi bi-info-circle"></i>
+                <p>No details available</p>
+                <span>Select a citation to view details</span>
+              </div>
+            }
+            
+            @if (selectedCitation) {
+              <div class="details-view">
+                <div class="details-view__header">
+                  <span class="details-view__badge">[{{ selectedCitation.index }}]</span>
+                  <h4 class="details-view__title">{{ selectedCitation.title }}</h4>
+                </div>
+                <div class="details-view__section">
+                  <h5 class="details-view__label">Authors</h5>
+                  <p class="details-view__text">
+                    {{ selectedCitation.authors.join(', ') || 'Unknown' }}
+                  </p>
+                </div>
+                @if (selectedCitation.journal) {
+                  <div class="details-view__section">
+                    <h5 class="details-view__label">Journal</h5>
+                    <p class="details-view__text">{{ selectedCitation.journal }}</p>
+                  </div>
+                }
+                @if (selectedCitation.year) {
+                  <div class="details-view__section">
+                    <h5 class="details-view__label">Year</h5>
+                    <p class="details-view__text">{{ selectedCitation.year }}</p>
+                  </div>
+                }
+                @if (selectedCitation.doi) {
+                  <div class="details-view__section">
+                    <h5 class="details-view__label">DOI</h5>
+                    <a class="details-view__text details-view__text--link"
+                       [href]="canAccessReferences ? 'https://doi.org/' + selectedCitation.doi : null"
+                       [target]="canAccessReferences ? '_blank' : null"
+                       rel="noopener noreferrer"
+                       (click)="canAccessReferences || openDoiLink(selectedCitation.doi)"
+                       [attr.aria-label]="'Open DOI ' + selectedCitation.doi">
+                      {{ selectedCitation.doi }}
+                      <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                  </div>
+                }
+                @if (selectedCitation.abstract) {
+                  <div class="details-view__section">
+                    <h5 class="details-view__label">Abstract</h5>
+                    <p class="details-view__text details-view__text--abstract">
+                      {{ selectedCitation.abstract }}
+                    </p>
+                  </div>
+                }
+                @if (selectedCitation.relevanceScore) {
+                  <div class="details-view__section">
+                    <h5 class="details-view__label">Relevance Score</h5>
+                    <div class="details-view__relevance">
+                      <div class="relevance-bar relevance-bar--large">
+                        <div
+                          class="relevance-bar__fill"
+                          [style.width.%]="selectedCitation.relevanceScore * 100"
+                        ></div>
+                      </div>
+                      <span class="details-view__score">
+                        {{ (selectedCitation.relevanceScore * 100).toFixed(0) }}%
+                      </span>
+                    </div>
+                  </div>
+                }
+                <div class="details-view__actions">
+                  @if (canOpenWithHighlight(selectedCitation)) {
+                    <button
+                      type="button"
+                      class="details-view__btn"
+                      (click)="openWithHighlight(selectedCitation)"
+                      >
+                      <i class="bi bi-box-arrow-up-right"></i>
+                      Open Source
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</aside>

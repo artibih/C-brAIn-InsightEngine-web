@@ -1,0 +1,747 @@
+@if (isLoading && !conversation?.combinedResponses?.length) {
+  
+  <div class="conversation">
+    <div class="conversation__toolbar">
+      <div class="skeleton skeleton--btn"></div>
+      <div class="skeleton skeleton--btn"></div>
+    </div>
+    <div class="conversation__content">
+      
+      <div class="message-turn">
+        <div class="message message--user">
+          <div class="skeleton skeleton--avatar"></div>
+          <div class="message__content">
+            <div class="skeleton skeleton--label-short"></div>
+            <div class="skeleton skeleton--bubble">
+              <div class="skeleton skeleton--line skeleton--w-85"></div>
+            </div>
+          </div>
+        </div>
+        <div class="message message--ai">
+          <div class="skeleton skeleton--avatar"></div>
+          <div class="message__content">
+            <div class="skeleton skeleton--label-long"></div>
+            <div class="skeleton skeleton--line skeleton--w-full"></div>
+            <div class="skeleton skeleton--line skeleton--w-90"></div>
+            <div class="skeleton skeleton--line skeleton--w-70"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="message-turn">
+        <div class="message message--user">
+          <div class="skeleton skeleton--avatar"></div>
+          <div class="message__content">
+            <div class="skeleton skeleton--label-short"></div>
+            <div class="skeleton skeleton--bubble">
+              <div class="skeleton skeleton--line skeleton--w-60"></div>
+            </div>
+          </div>
+        </div>
+        <div class="message message--ai">
+          <div class="skeleton skeleton--avatar"></div>
+          <div class="message__content">
+            <div class="skeleton skeleton--label-long"></div>
+            <div class="skeleton skeleton--line skeleton--w-full"></div>
+            <div class="skeleton skeleton--line skeleton--w-85"></div>
+            <div class="skeleton skeleton--line skeleton--w-75"></div>
+            <div class="skeleton skeleton--line skeleton--w-50"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+} @else if (conversation) {
+  <div class="conversation">
+    
+    <app-citation-tooltip
+      [citation]="activeCitation!"
+      [position]="citationTooltipPosition"
+      [isVisible]="showCitationTooltip"
+      [userType]="'cbrain'"
+      [canAccessReferences]="canAccessReferences"
+      (close)="closeCitationTooltip()"
+      (openPdf)="onCitationOpenPdf($event)"
+      (openDoi)="onCitationOpenDoi($event)"
+    ></app-citation-tooltip>
+
+    
+    @if (isResultsLikeTab(activeTab)) {
+      <div class="conversation__toolbar">
+        
+
+
+
+
+
+
+
+
+
+
+        <button
+          type="button"
+          class="toolbar__btn"
+          (click)="onClearCurrent()"
+          title="Clear conversation"
+        >
+          <i class="bi bi-trash3"></i>
+        </button>
+      </div>
+    }
+    
+    @if (isResultsLikeTab(activeTab)) {
+      <div class="conversation__content" #contentArea>
+        @for (
+          response of conversation.combinedResponses;
+          track trackById($index, response)
+        ) {
+          <div class="message-turn">
+            
+            <div class="message message--user">
+              <div class="message__avatar">
+                <i class="bi bi-person-fill"></i>
+              </div>
+              <div class="message__content">
+                <div class="message__meta">
+                  <span class="message__label">You</span>
+                  <span class="message__time">{{
+                    formatMessageTime(response.userMessage.timestamp)
+                  }}</span>
+                </div>
+                <div class="message__bubble">
+                  <p class="message__text">
+                    {{ response.userMessage.content }}
+                  </p>
+                  @if (response.userMessage.attachments?.length) {
+                    <div class="message__attachments">
+                      @for (
+                        att of response.userMessage.attachments;
+                        track $index
+                      ) {
+                        <div class="message__attachment-chip">
+                          <i class="bi" [ngClass]="getAttachmentIcon(att)"></i>
+                          <span class="message__attachment-name">{{
+                            att.name
+                          }}</span>
+                          @if (att.size) {
+                            <span class="message__attachment-size">{{
+                              formatFileSize(att.size)
+                            }}</span>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+            
+            <div class="message message--ai">
+              <div class="message__avatar message__avatar--ai">
+                <i class="bi bi-stars"></i>
+              </div>
+              <div class="message__content">
+                <div class="message__meta">
+                  <span class="message__label">{{ activeModeName }}</span>
+                  <span class="message__time">{{
+                    formatMessageTime(response.timestamp)
+                  }}</span>
+                </div>
+                @if (response.conflictingInformation; as conflict) {
+                  <div class="message__conflict">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span>{{ conflict }}</span>
+                  </div>
+                }
+
+                
+                @if (response.streamError; as error) {
+                  <div class="stream-error">
+                    <div class="stream-error__icon">
+                      <i class="bi bi-exclamation-octagon"></i>
+                    </div>
+                    <div class="stream-error__content">
+                      <h4 class="stream-error__title">{{ error.title }}</h4>
+                      <p class="stream-error__message">{{ error.message }}</p>
+                      @if (error.code) {
+                        <span class="stream-error__code">{{ error.code }}</span>
+                      }
+                      @if (error.canRetry) {
+                        <button
+                          type="button"
+                          class="stream-error__retry"
+                          (click)="onRetryLastMessage(response)"
+                        >
+                          <i class="bi bi-arrow-clockwise"></i>
+                          Try again
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+
+                
+                @if (isHypothesisResponse(response)) {
+                  <app-hypothesis-result
+                    [agentSteps]="response.agentSteps ?? []"
+                    [isStreaming]="!!response.isStreaming"
+                  ></app-hypothesis-result>
+                }
+
+                
+                @if (isAnalysisResponse(response)) {
+                  <app-analysis-results
+                    [agentSteps]="response.agentSteps ?? []"
+                    [isStreaming]="!!response.isStreaming"
+                  ></app-analysis-results>
+                }
+
+                
+                @if (isReviewerResponse(response)) {
+                  <app-reviewer-output
+                    [reviewerOutput]="response.reviewerOutput!"
+                    [isStreaming]="!!response.isStreaming"
+                    [activeTab]="reviewerActiveTab(activeTab)"
+                  ></app-reviewer-output>
+                }
+
+                
+                @if (
+                  !isHypothesisResponse(response) &&
+                  !isAnalysisResponse(response) &&
+                  !isReviewerResponse(response)
+                ) {
+                  @if (isRagResponse(response)) {
+                    <app-formatted-message
+                      class="message__text"
+                      [content]="response.ragResponse!.answer"
+                      [isStreaming]="!!response.isStreaming"
+                      [responseId]="response.id"
+                      [canAccessReferences]="canAccessReferences"
+                    ></app-formatted-message>
+                  } @else {
+                    @if (response.isStreaming && response.synthesizedResponse) {
+                      <p
+                        class="message__text"
+                        [typingAnimation]="response.synthesizedResponse"
+                        [isTyping]="true"
+                      ></p>
+                    }
+                    @if (
+                      !response.isStreaming && response.synthesizedResponse
+                    ) {
+                      <app-formatted-message
+                        class="message__text"
+                        [content]="response.synthesizedResponse"
+                        [isStreaming]="false"
+                        [responseId]="response.id"
+                        [canAccessReferences]="canAccessReferences"
+                      ></app-formatted-message>
+                    }
+                  }
+                }
+
+                
+                @if (response.isStreaming) {
+                  <div class="reasoning-hint">
+                    <div class="reasoning-hint__pulse"></div>
+                    <span class="reasoning-hint__text">
+                      {{ response.activeAgentName || "Processing" }} —
+                      {{ response.activeAgentMessage || "working..." }}
+                    </span>
+                    @if (response.agentSteps?.length) {
+                      <span
+                        class="reasoning-hint__tab-link"
+                        (click)="switchTab('reasoning')"
+                      >
+                        View reasoning <i class="bi bi-arrow-right-short"></i>
+                      </span>
+                    }
+                  </div>
+                }
+
+                
+                @if (canRateResponse(response)) {
+                  <app-message-feedback
+                    [sessionId]="sessionId"
+                    [messageId]="response.assistantMessageId ?? null"
+                    [rating]="response.rating"
+                    [feedbackComment]="response.feedbackComment"
+                    (feedbackChanged)="onFeedbackChanged(response, $event)"
+                  ></app-message-feedback>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+    
+    @if (activeTab === "reasoning") {
+      <div class="conversation__reasoning">
+        @if (conversation.combinedResponses.length === 0) {
+          <div class="reasoning__empty">
+            <i class="bi bi-diagram-3"></i>
+            <p>No reasoning steps</p>
+            <span
+              >The AI's thought process will appear here as it processes your
+              request</span
+            >
+          </div>
+        }
+        @for (
+          response of conversation.combinedResponses;
+          track trackById($index, response)
+        ) {
+          @if (response.agentSteps?.length || response.isStreaming) {
+            <div class="reasoning-edison">
+              
+              <div class="reasoning-edison__section">
+                <div
+                  class="reasoning-edison__header"
+                  (click)="toggleExpanded('init-' + response.id)"
+                >
+                  <i class="bi bi-play-circle-fill reasoning-edison__icon"></i>
+                  <span class="reasoning-edison__title">INITIALIZED</span>
+                  <span class="reasoning-edison__spacer"></span>
+                  <i
+                    class="bi"
+                    [ngClass]="
+                      expanded['init-' + response.id]
+                        ? 'bi-chevron-up'
+                        : 'bi-chevron-down'
+                    "
+                  ></i>
+                </div>
+                @if (expanded["init-" + response.id]) {
+                  <div class="reasoning-edison__body">
+                    <pre class="reasoning-edison__query">
+Use the tools to answer the question: {{ response.userMessage.content }}</pre
+                    >
+                  </div>
+                }
+              </div>
+
+              
+              @if (isHypothesisResponse(response)) {
+                <app-hypothesis-result
+                  [agentSteps]="response.agentSteps ?? []"
+                  [isStreaming]="!!response.isStreaming"
+                ></app-hypothesis-result>
+              } @else if (hasHypothesisPlannerStep(response)) {
+                
+                <div class="reasoning-edison__section">
+                  <div
+                    class="reasoning-edison__header reasoning-edison__header--static"
+                  >
+                    <span class="reasoning-edison__number">01</span>
+                    <span class="reasoning-edison__title">CREATE PLAN</span>
+                    <span class="reasoning-edison__spacer"></span>
+                    <div class="reasoning-edison__spinner-inline"></div>
+                    <span class="reasoning-edison__creating"
+                      >Creating plan...</span
+                    >
+                  </div>
+                </div>
+              }
+
+              
+              @if (
+                (isHypothesisResponse(response) ||
+                  hasHypothesisPlannerStep(response)) &&
+                getExecutionAgentSteps(response).length
+              ) {
+                <div class="reasoning-edison__divider">
+                  <span class="reasoning-edison__divider-line"></span>
+                  <span class="reasoning-edison__divider-text"
+                    >EXECUTION LOG</span
+                  >
+                  <span class="reasoning-edison__divider-line"></span>
+                </div>
+              }
+
+              
+              @for (
+                step of getExecutionAgentSteps(response);
+                track $index;
+                let i = $index
+              ) {
+                <div class="reasoning-edison__section">
+                  <div
+                    class="reasoning-edison__header"
+                    (click)="toggleExpanded('agent-' + response.id + '-' + i)"
+                  >
+                    <span class="reasoning-edison__number">{{
+                      getStepLabel(response, step)
+                    }}</span>
+                    <span class="reasoning-edison__title">{{
+                      getStepHeaderTitle(step)
+                    }}</span>
+                    <span class="reasoning-edison__spacer"></span>
+                    <span
+                      class="reasoning-edison__badge"
+                      [class]="'reasoning-edison__badge--' + step.status"
+                    >
+                      {{ step.status }}
+                    </span>
+                    <i
+                      class="bi"
+                      [ngClass]="
+                        expanded['agent-' + response.id + '-' + i]
+                          ? 'bi-chevron-up'
+                          : 'bi-chevron-down'
+                      "
+                    ></i>
+                  </div>
+                  @if (expanded["agent-" + response.id + "-" + i]) {
+                    <div class="reasoning-edison__body">
+                      @if (getAgentDataSummary(step); as summary) {
+                        <app-formatted-message
+                          class="reasoning-edison__formatted"
+                          [content]="summary"
+                          [isStreaming]="false"
+                          [canAccessReferences]="canAccessReferences"
+                        ></app-formatted-message>
+                      }
+                      @for (
+                        tbl of getStepStructuredTables(step);
+                        track $index
+                      ) {
+                        @if (tbl.title) {
+                          <span class="reasoning-edison__table-title">{{
+                            tbl.title
+                          }}</span>
+                        }
+                        <div
+                          class="reasoning-edison__table-wrap"
+                          (click)="onTableCitationClick($event)"
+                        >
+                          <table class="reasoning-edison__table">
+                            <thead>
+                              <tr>
+                                @for (h of tbl.headers; track $index) {
+                                  <th>{{ h }}</th>
+                                }
+                              </tr>
+                            </thead>
+                            <tbody>
+                              @for (row of tbl.rows; track $index) {
+                                <tr>
+                                  @for (cell of row; track $index) {
+                                    <td
+                                      [innerHTML]="
+                                        formatCellWithCitations(cell)
+                                      "
+                                    ></td>
+                                  }
+                                </tr>
+                              }
+                            </tbody>
+                          </table>
+                        </div>
+                      }
+                      @if (getStepImageUrls(step); as imgs) {
+                        @if (imgs.length) {
+                          <div class="reasoning-edison__images">
+                            @for (img of imgs; track img.url) {
+                              <div
+                                class="reasoning-edison__image-item"
+                                #reasoningImgItem
+                              >
+                                <img
+                                  [signedSrc]="img.url"
+                                  [alt]="img.label"
+                                  loading="lazy"
+                                  hideIfTransparent
+                                  (error)="
+                                    reasoningImgItem.style.display = 'none'
+                                  "
+                                />
+                                <span class="reasoning-edison__image-label">{{
+                                  img.label
+                                }}</span>
+                              </div>
+                            }
+                          </div>
+                        }
+                      }
+                      @if (
+                        !getAgentDataSummary(step) &&
+                        !getStepStructuredTables(step).length &&
+                        !getStepImageUrls(step).length
+                      ) {
+                        @if (step.status === "running") {
+                          <p
+                            class="reasoning-edison__agent-msg reasoning-edison__agent-msg--empty"
+                          >
+                            Processing...
+                          </p>
+                        } @else if (step.message) {
+                          <app-formatted-message
+                            class="reasoning-edison__formatted"
+                            [content]="step.message"
+                            [isStreaming]="false"
+                            [canAccessReferences]="canAccessReferences"
+                          ></app-formatted-message>
+                        }
+                      }
+                    </div>
+                  }
+                </div>
+              }
+
+              
+              @if (response.isStreaming) {
+                <div class="reasoning-edison__streaming">
+                  <div class="reasoning-edison__spinner"></div>
+                  <span>Processing...</span>
+                </div>
+              }
+            </div>
+          }
+        }
+      </div>
+    }
+    
+    @if (activeTab === "references") {
+      <div class="conversation__references">
+        @if (allCitations.length === 0) {
+          <div class="references__empty">
+            <i class="bi bi-journal-bookmark"></i>
+            <p>No references</p>
+            <span
+              >Cited papers and sources will appear here when the AI references
+              external literature</span
+            >
+          </div>
+        }
+        @if (allCitations.length > 0) {
+          <div class="references__list">
+            @for (citation of allCitations; track citation.id; let i = $index) {
+              <div class="reference-card">
+                <div class="reference-card__index">{{ i + 1 }}</div>
+                <div class="reference-card__body">
+                  
+                  @if (citation.title) {
+                    <h4
+                      class="reference-card__title"
+                      [innerHTML]="sanitizeHtml(citation.title)"
+                    ></h4>
+                  } @else if (citation.abstract) {
+                    <h4
+                      class="reference-card__title"
+                      [innerHTML]="
+                        sanitizeHtml(
+                          citation.abstract.length > 120
+                            ? citation.abstract.slice(0, 120) + '...'
+                            : citation.abstract
+                        )
+                      "
+                    ></h4>
+                  }
+                  
+                  @if (citation.authors.length) {
+                    <p class="reference-card__authors">
+                      {{ citation.authors.join(", ") }}
+                    </p>
+                  }
+                  
+                  @if (citation.title && citation.abstract) {
+                    <p
+                      class="reference-card__abstract"
+                      [innerHTML]="
+                        sanitizeHtml(
+                          expanded['abs-' + citation.id]
+                            ? citation.abstract
+                            : citation.abstract.length > 250
+                              ? citation.abstract.slice(0, 250) + '...'
+                              : citation.abstract
+                        )
+                      "
+                    ></p>
+                    @if (citation.abstract.length > 250) {
+                      <button
+                        class="reference-card__read-more"
+                        (click)="toggleExpanded('abs-' + citation.id)"
+                      >
+                        {{
+                          expanded["abs-" + citation.id]
+                            ? "Show less"
+                            : "Read more"
+                        }}
+                      </button>
+                    }
+                  }
+                  
+                  @if (
+                    citation.doi ||
+                    citation.paperUrl ||
+                    citation.pubmedId ||
+                    citation.url
+                  ) {
+                    <div class="reference-card__actions">
+                      @if (canAccessReferences) {
+                        @if (citation.doi) {
+                          <a
+                            class="reference-card__link reference-card__link--doi"
+                            [href]="'https://doi.org/' + citation.doi"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Open DOI"
+                          >
+                            <i class="bi bi-journal-text"></i>
+                            DOI
+                          </a>
+                        }
+                        @if (citation.paperUrl) {
+                          <button
+                            type="button"
+                            class="reference-card__link reference-card__link--pdf"
+                            [disabled]="
+                              resolvingPaperUrls.has(citation.paperUrl)
+                            "
+                            (click)="onOpenPaperUrl(citation)"
+                            [title]="
+                              resolvingPaperUrls.has(citation.paperUrl)
+                                ? 'Opening…'
+                                : 'View Paper PDF'
+                            "
+                          >
+                            <i
+                              class="bi"
+                              [class.bi-file-earmark-pdf]="
+                                !resolvingPaperUrls.has(citation.paperUrl)
+                              "
+                              [class.bi-arrow-repeat]="
+                                resolvingPaperUrls.has(citation.paperUrl)
+                              "
+                            ></i>
+                            {{
+                              resolvingPaperUrls.has(citation.paperUrl)
+                                ? "Opening…"
+                                : "View Paper"
+                            }}
+                          </button>
+                        }
+                        @if (citation.pubmedId) {
+                          <a
+                            class="reference-card__link"
+                            [href]="
+                              'https://pubmed.ncbi.nlm.nih.gov/' +
+                              citation.pubmedId
+                            "
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="View on PubMed"
+                          >
+                            <i class="bi bi-box-arrow-up-right"></i>
+                            PubMed
+                          </a>
+                        }
+                        @if (
+                          !citation.doi &&
+                          !citation.paperUrl &&
+                          !citation.pubmedId &&
+                          citation.url
+                        ) {
+                          <a
+                            class="reference-card__link"
+                            [href]="citation.url"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Open Link"
+                          >
+                            <i class="bi bi-box-arrow-up-right"></i>
+                            Open Link
+                          </a>
+                        }
+                      } @else {
+                        <span
+                          class="reference-card__link reference-card__link--locked"
+                        >
+                          <i class="bi bi-lock"></i>
+                          Your account does not have access to references
+                        </span>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+    <tp-chat-composer
+      [isSending]="isSending"
+      [uploadingFiles]="uploadingFiles"
+      [attachments]="attachments"
+      [activeModeName]="activeModeName"
+      [activeModeIcon]="activeModeIcon"
+      [modeOptions]="modeOptions"
+      [modeDisabled]="!!conversation!.combinedResponses.length"
+      [placeholder]="composerPlaceholder"
+      [hideAttach]="false"
+      [accept]="composerAccept"
+      [lockLlmSelector]="isMvp2Mode"
+      [showReviewerParams]="isReviewerMode"
+      [showPrebuiltWorkflows]="
+        isMvp2Mode && !conversation!.combinedResponses.length
+      "
+      [prebuiltWorkflows]="prebuiltWorkflows"
+      [prebuiltLoading]="prebuiltLoading"
+      [prebuiltLoadError]="prebuiltLoadError"
+      [activePrebuiltId]="activePrebuiltId"
+      [promptText]="composerText"
+      (modeChange)="onModeChangeFromDropdown($event)"
+      (send)="onSendFromInput($event)"
+      (filesSelected)="onFilesSelected($event)"
+      (filesPicked)="onFilesChosen($event)"
+      (filesDropped)="onFilesChosen($event)"
+      (removeAttachment)="removeAttachment($event)"
+      (usePrebuiltWorkflow)="onUsePrebuiltWorkflow($event)"
+    ></tp-chat-composer>
+  </div>
+} @else {
+  <div class="conversation conversation--empty-state">
+    <div class="conversation__content conversation__content--centered">
+      <div class="conversation__empty">
+        <div class="conversation__empty-icon">
+          <i class="bi bi-stars"></i>
+        </div>
+        <h3>No responses yet</h3>
+        <p>
+          Select a conversation from the left or start a new one to see
+          synthesized AI responses.
+        </p>
+      </div>
+    </div>
+    <tp-chat-composer
+      [isSending]="isSending"
+      [uploadingFiles]="uploadingFiles"
+      [attachments]="attachments"
+      [activeModeName]="activeModeName"
+      [activeModeIcon]="activeModeIcon"
+      [modeOptions]="modeOptions"
+      [placeholder]="composerPlaceholder"
+      [hideAttach]="false"
+      [accept]="composerAccept"
+      [lockLlmSelector]="isMvp2Mode"
+      [showReviewerParams]="isReviewerMode"
+      [showPrebuiltWorkflows]="isMvp2Mode"
+      [prebuiltWorkflows]="prebuiltWorkflows"
+      [prebuiltLoading]="prebuiltLoading"
+      [prebuiltLoadError]="prebuiltLoadError"
+      [activePrebuiltId]="activePrebuiltId"
+      [promptText]="composerText"
+      (modeChange)="onModeChangeFromDropdown($event)"
+      (send)="onSendFromInput($event)"
+      (filesSelected)="onFilesSelected($event)"
+      (filesPicked)="onFilesChosen($event)"
+      (filesDropped)="onFilesChosen($event)"
+      (removeAttachment)="removeAttachment($event)"
+      (usePrebuiltWorkflow)="onUsePrebuiltWorkflow($event)"
+    ></tp-chat-composer>
+  </div>
+}

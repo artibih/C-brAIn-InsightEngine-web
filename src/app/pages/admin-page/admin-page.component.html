@@ -1,0 +1,740 @@
+<div class="admin-page">
+  
+  <header class="admin-header">
+    <div class="admin-header__left">
+      <button class="btn-back" (click)="goBack()">
+        <i class="bi bi-arrow-left"></i>
+        Back
+      </button>
+      <div class="admin-header__title">
+        <h1>Admin Dashboard</h1>
+        <p>Manage users and access requests</p>
+      </div>
+    </div>
+  </header>
+
+  
+  <nav class="admin-tabs">
+    <button
+      class="admin-tab"
+      [class.admin-tab--active]="activeTab === 'overview'"
+      (click)="setTab('overview')"
+      >
+      <i class="bi bi-grid"></i>
+      Overview
+    </button>
+    <button
+      class="admin-tab"
+      [class.admin-tab--active]="activeTab === 'requests'"
+      (click)="setTab('requests')"
+      >
+      <i class="bi bi-person-check"></i>
+      Access Requests
+      @if (stats.pendingRequests > 0) {
+        <span class="tab-badge">{{ stats.pendingRequests }}</span>
+      }
+    </button>
+    <button
+      class="admin-tab"
+      [class.admin-tab--active]="activeTab === 'users'"
+      (click)="setTab('users')"
+      >
+      <i class="bi bi-people"></i>
+      Users
+    </button>
+    <button
+      class="admin-tab"
+      [class.admin-tab--active]="activeTab === 'feedback'"
+      (click)="setTab('feedback')"
+      >
+      <i class="bi bi-chat-square-text"></i>
+      Feedback
+    </button>
+  </nav>
+
+  
+  <main class="admin-content">
+    
+    @if (activeTab === 'overview') {
+      <div class="tab-panel">
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--primary">
+              <i class="bi bi-people"></i>
+            </div>
+            <div class="stat-card__content">
+              @if (loadingStats) {
+                <span class="stat-card__value stat-card__value--skeleton"></span>
+              } @else {
+                <span class="stat-card__value">{{ stats.totalUsers }}</span>
+              }
+              <span class="stat-card__label">Total Users</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--success">
+              <i class="bi bi-person-check"></i>
+            </div>
+            <div class="stat-card__content">
+              @if (loadingStats) {
+                <span class="stat-card__value stat-card__value--skeleton"></span>
+              } @else {
+                <span class="stat-card__value">{{ stats.activeUsers }}</span>
+              }
+              <span class="stat-card__label">Active Users</span>
+            </div>
+          </div>
+          <div class="stat-card stat-card--clickable" role="button" tabindex="0"
+               (click)="setTab('requests')" (keydown.enter)="setTab('requests')" (keydown.space)="setTab('requests'); $event.preventDefault()">
+            <div class="stat-card__icon stat-card__icon--warning">
+              <i class="bi bi-hourglass-split"></i>
+            </div>
+            <div class="stat-card__content">
+              @if (loadingStats) {
+                <span class="stat-card__value stat-card__value--skeleton"></span>
+              } @else {
+                <span class="stat-card__value">{{ stats.pendingRequests }}</span>
+              }
+              <span class="stat-card__label">Pending Requests</span>
+            </div>
+            <i class="bi bi-chevron-right stat-card__arrow"></i>
+          </div>
+        </div>
+      </div>
+    }
+
+    
+    @if (activeTab === 'requests') {
+      <div class="tab-panel">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Pending Access Requests</h3>
+              <p class="card-subtitle">Review and approve user registration requests</p>
+            </div>
+          </div>
+          @if (loadingRequests) {
+            <div class="request-list">
+              @for (i of [1, 2]; track i) {
+                <div class="request-card request-card--skeleton">
+                  <div class="request-card__header">
+                    <div class="request-card__user">
+                      <div class="skeleton skeleton--avatar"></div>
+                      <div class="request-card__info">
+                        <span class="skeleton skeleton--text skeleton--text-medium"></span>
+                        <span class="skeleton skeleton--text skeleton--text-long" style="margin-top: 4px"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="request-card__body">
+                    <span class="skeleton skeleton--text skeleton--text-long"></span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+          @if (!loadingRequests && getPendingRequests().length === 0) {
+            <div class="empty-state">
+              <i class="bi bi-inbox"></i>
+              <h4>No pending requests</h4>
+              <p>All access requests have been processed</p>
+            </div>
+          }
+          @if (!loadingRequests && getPendingRequests().length > 0) {
+            <div class="request-list">
+              @for (request of getPendingRequests(); track request.id) {
+                <div
+                  class="request-card"
+                  [class.request-card--processing]="processingRequest === request.id"
+                  >
+                  <div class="request-card__header">
+                    <div class="request-card__user">
+                      <div class="avatar">{{ request.name.charAt(0) }}</div>
+                      <div class="request-card__info">
+                        <h4>{{ request.name }}</h4>
+                        <span>{{ request.email }}</span>
+                      </div>
+                    </div>
+                    <div class="request-card__meta">
+                      <span class="badge badge--primary">{{ request.requestedRole }}</span>
+                      <span class="request-date">{{ formatDate(request.createdAt) }}</span>
+                    </div>
+                  </div>
+                  <div class="request-card__body">
+                    <div class="request-field">
+                      <label>Organization</label>
+                      <span>{{ request.organization }}</span>
+                    </div>
+                    <div class="request-field">
+                      <label>Justification</label>
+                      <p>{{ request.justification }}</p>
+                    </div>
+                  </div>
+                  <div class="request-card__actions">
+                    <button
+                      class="btn btn--secondary"
+                      (click)="rejectRequest(request)"
+                      [disabled]="processingRequest === request.id"
+                      >
+                      <i class="bi bi-x-lg"></i>
+                      Reject
+                    </button>
+                    <div class="approve-dropdown">
+                      <button
+                        class="btn btn--primary"
+                        (click)="approveRequest(request, 'C-Brain User')"
+                        [disabled]="processingRequest === request.id"
+                        >
+                        <i class="bi bi-check-lg"></i>
+                        {{ processingRequest === request.id ? 'Processing...' : 'C-Brain User' }}
+                      </button>
+                      <button
+                        class="btn btn--outline"
+                        (click)="approveRequest(request, 'External User')"
+                        [disabled]="processingRequest === request.id"
+                        >
+                        <i class="bi bi-person-badge"></i>
+                        External User
+                      </button>
+                      <button
+                        class="btn btn--danger-outline"
+                        (click)="approveRequest(request, 'Admin')"
+                        [disabled]="processingRequest === request.id"
+                        >
+                        <i class="bi bi-shield-check"></i>
+                        Admin
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    
+    @if (activeTab === 'users') {
+      <div class="tab-panel">
+        
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Add New User</h3>
+              <p class="card-subtitle">Create a new user account manually</p>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">First Name <span class="required">*</span></label>
+                <input
+                  type="text"
+                  class="form-input"
+                  [(ngModel)]="newUserFirstName"
+                  (ngModelChange)="touched && validateCreateForm()"
+                  placeholder="First name"
+                  autocomplete="off"
+                  />
+                @if (touched && errors.firstName) {
+                  <div class="field-error">
+                    {{ errors.firstName }}
+                  </div>
+                }
+              </div>
+              <div class="form-group">
+                <label class="form-label">Last Name <span class="required">*</span></label>
+                <input
+                  type="text"
+                  class="form-input"
+                  [(ngModel)]="newUserLastName"
+                  (ngModelChange)="touched && validateCreateForm()"
+                  placeholder="Last name"
+                  autocomplete="off"
+                  />
+                @if (touched && errors.lastName) {
+                  <div class="field-error">
+                    {{ errors.lastName }}
+                  </div>
+                }
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Organization <span class="required">*</span></label>
+                @if (!isCreatingNewOrg) {
+                  <select
+                    class="form-input form-select"
+                    [(ngModel)]="newUserOrganization"
+                    (ngModelChange)="touched && validateCreateForm()"
+                    >
+                    <option value="" disabled>Select organization</option>
+                    @for (org of organizations; track org.id) {
+                      <option [value]="org.name">{{ org.name }}</option>
+                    }
+                  </select>
+                  @if (touched && errors.organization) {
+                    <div class="field-error">
+                      {{ errors.organization }}
+                    </div>
+                  }
+                  <button type="button" class="org-toggle-btn" (click)="toggleOrgMode()">
+                    <i class="bi bi-plus-lg"></i> Create New Organization
+                  </button>
+                } @else {
+                  <input
+                    type="text"
+                    class="form-input"
+                    [(ngModel)]="newUserOrganization"
+                    (ngModelChange)="touched && validateCreateForm()"
+                    placeholder="New organization name"
+                    autocomplete="off"
+                    />
+                  @if (touched && errors.organization) {
+                    <div class="field-error">
+                      {{ errors.organization }}
+                    </div>
+                  }
+                  <button type="button" class="org-toggle-btn" (click)="toggleOrgMode()">
+                    <i class="bi bi-list-ul"></i> Select existing organization
+                  </button>
+                }
+              </div>
+              <div class="form-group">
+                <label class="form-label">Role <span class="required">*</span></label>
+                <select
+                  class="form-input form-select"
+                  [(ngModel)]="newUserRole"
+                  >
+                  @for (role of availableRoles; track role) {
+                    <option [value]="role">{{ role }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Email Address <span class="required">*</span></label>
+                <input
+                  type="email"
+                  class="form-input"
+                  [(ngModel)]="email"
+                  (ngModelChange)="touched && validateCreateForm()"
+                  placeholder="user@organization.com"
+                  autocomplete="off"
+                  />
+                @if (touched && errors.email) {
+                  <div class="field-error">
+                    {{ errors.email }}
+                  </div>
+                }
+              </div>
+              <div class="form-group">
+                <label class="form-label">Password <span class="required">*</span></label>
+                <div class="input-with-icon">
+                  <input
+                    [type]="showPassword ? 'text' : 'password'"
+                    class="form-input"
+                    [(ngModel)]="password"
+                    (ngModelChange)="touched && validateCreateForm()"
+                    placeholder="Enter a secure password"
+                    autocomplete="new-password"
+                    />
+                  <button
+                    type="button"
+                    class="icon-btn"
+                    (click)="showPassword = !showPassword"
+                    >
+                    <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+                  </button>
+                </div>
+                @if (touched && errors.password) {
+                  <div class="field-error">
+                    {{ errors.password }}
+                  </div>
+                }
+              </div>
+            </div>
+            <div class="form-row form-row--action">
+              <button class="btn btn--primary" (click)="createUser()" [disabled]="creating">
+                <i class="bi bi-plus-lg"></i>
+                {{ creating ? 'Creating...' : 'Create User' }}
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">All Users</h3>
+              <p class="card-subtitle">{{ totalCount }} users total</p>
+            </div>
+            <div class="search-wrap">
+              <i class="bi bi-search search-icon"></i>
+              <input
+                type="text"
+                class="form-input search-input"
+                [(ngModel)]="search"
+                (ngModelChange)="onSearchChange()"
+                placeholder="Search users..."
+                />
+              @if (search.trim()) {
+                <button
+                  type="button"
+                  class="clear-btn"
+                  (click)="clearSearch()"
+                  >
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              }
+            </div>
+          </div>
+          @if (loadingUsers) {
+            <div class="user-table">
+              <div class="user-row user-row--header">
+                <div class="user-col user-col--email">Email</div>
+                <div class="user-col user-col--name">Name</div>
+                <div class="user-col user-col--role">Role</div>
+                <div class="user-col user-col--actions">Actions</div>
+              </div>
+              @for (i of [1, 2, 3, 4, 5]; track i) {
+                <div class="user-row user-row--skeleton">
+                  <div class="user-col user-col--email">
+                    <span class="skeleton skeleton--circle"></span>
+                    <span class="skeleton skeleton--text skeleton--text-long"></span>
+                  </div>
+                  <div class="user-col user-col--name">
+                    <span class="skeleton skeleton--text skeleton--text-medium"></span>
+                  </div>
+                  <div class="user-col user-col--role">
+                    <span class="skeleton skeleton--badge"></span>
+                  </div>
+                  <div class="user-col user-col--actions">
+                    <span class="skeleton skeleton--icon"></span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+          @if (!loadingUsers && !users.length) {
+            <div class="empty-state">
+              <i class="bi bi-people"></i>
+              <h4>No users found</h4>
+              <p>{{ search ? 'Try a different search term' : 'Create your first user above' }}</p>
+            </div>
+          }
+          @if (!loadingUsers && users.length) {
+            <div class="user-table">
+              <div class="user-row user-row--header">
+                <div class="user-col user-col--email">Email</div>
+                <div class="user-col user-col--name">Name</div>
+                <div class="user-col user-col--role">Role</div>
+                <div class="user-col user-col--actions">Actions</div>
+              </div>
+              @for (u of users; track trackById($index, u)) {
+                <div class="user-row">
+                  <div class="user-col user-col--email">
+                    <i class="bi bi-person-circle"></i>
+                    {{ u.email }}
+                  </div>
+                  <div class="user-col user-col--name">{{ u.firstName }} {{ u.lastName }}</div>
+                  <div class="user-col user-col--role">
+                    <span class="badge" [ngClass]="getRoleBadgeClass(u)">{{ roleLabel(u) }}</span>
+                  </div>
+                  <div class="user-col user-col--actions">
+                    <button class="icon-btn icon-btn--danger" (click)="requestDelete(u)" title="Delete user">
+                      <i class="bi bi-trash3"></i>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+            @if (totalPages > 1) {
+              <div class="pagination">
+                <button
+                  class="pagination__btn"
+                  [disabled]="currentPage === 1"
+                  (click)="goToPage(currentPage - 1)"
+                  title="Previous page"
+                >
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+                @for (p of getPageNumbers(); track p) {
+                  <button
+                    class="pagination__btn"
+                    [class.pagination__btn--active]="p === currentPage"
+                    (click)="goToPage(p)"
+                  >
+                    {{ p }}
+                  </button>
+                }
+                <button
+                  class="pagination__btn"
+                  [disabled]="currentPage === totalPages"
+                  (click)="goToPage(currentPage + 1)"
+                  title="Next page"
+                >
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    }
+
+    
+    @if (activeTab === 'feedback') {
+      <div class="tab-panel">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">All User Feedback</h3>
+              <p class="card-subtitle">{{ feedbackTotalCount }} feedback submissions total</p>
+            </div>
+            <button class="btn btn--secondary btn--sm" (click)="loadFeedback()" [disabled]="loadingFeedback">
+              <i class="bi bi-arrow-clockwise"></i>
+              Refresh
+            </button>
+          </div>
+
+          @if (loadingFeedback) {
+            <div class="feedback-list">
+              @for (i of [1, 2, 3]; track i) {
+                <div class="feedback-card feedback-card--skeleton">
+                  <div class="feedback-card__header">
+                    <div class="feedback-card__user">
+                      <div class="skeleton skeleton--avatar"></div>
+                      <div class="feedback-card__info">
+                        <span class="skeleton skeleton--text skeleton--text-medium"></span>
+                        <span class="skeleton skeleton--text skeleton--text-long" style="margin-top: 4px"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="feedback-card__body">
+                    <span class="skeleton skeleton--text skeleton--text-long"></span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          @if (!loadingFeedback && !feedbackItems.length) {
+            <div class="empty-state">
+              <i class="bi bi-chat-square-text"></i>
+              <h4>No feedback yet</h4>
+              <p>No feedback has been submitted by any user</p>
+            </div>
+          }
+
+          @if (!loadingFeedback && feedbackItems.length) {
+            <div class="feedback-list">
+              @for (fb of feedbackItems; track trackByFeedbackId($index, fb)) {
+                <div class="feedback-card" [class.feedback-card--expanded]="expandedFeedbackId === fb.id">
+                  <div class="feedback-card__header" (click)="toggleFeedbackExpand(fb.id)">
+                    <div class="feedback-card__user">
+                      <div class="avatar">{{ (fb.name ?? fb.email ?? '?').charAt(0).toUpperCase() }}</div>
+                      <div class="feedback-card__info">
+                        <h4>{{ fb.name ?? 'Unknown' }}</h4>
+                        <span>{{ fb.email ?? '-' }}</span>
+                      </div>
+                    </div>
+                    <div class="feedback-card__meta">
+                      @if (fb.affiliation) {
+                        <span class="badge badge--primary">{{ fb.affiliation }}</span>
+                      }
+                      <span class="feedback-date">{{ formatDateTime(fb.createdAt) }}</span>
+                      <i class="bi" [ngClass]="expandedFeedbackId === fb.id ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                    </div>
+                  </div>
+
+                  
+                  <div class="feedback-card__summary">
+                    <div class="rating-pill" title="Outputs Understandable">
+                      <span class="rating-pill__label">Clarity</span>
+                      <span class="rating-pill__value" [attr.data-rating]="fb.outputsUnderstandable">{{ fb.outputsUnderstandable ?? '-' }}</span>
+                    </div>
+                    <div class="rating-pill" title="Statements Correct">
+                      <span class="rating-pill__label">Accuracy</span>
+                      <span class="rating-pill__value" [attr.data-rating]="fb.statementsCorrect">{{ fb.statementsCorrect ?? '-' }}</span>
+                    </div>
+                    <div class="rating-pill" title="Logic Sound">
+                      <span class="rating-pill__label">Logic</span>
+                      <span class="rating-pill__value" [attr.data-rating]="fb.logicSound">{{ fb.logicSound ?? '-' }}</span>
+                    </div>
+                    <div class="rating-pill" title="Would Use Again">
+                      <span class="rating-pill__label">Reuse</span>
+                      <span class="rating-pill__value" [attr.data-rating]="fb.wouldUseAgain">{{ fb.wouldUseAgain ?? '-' }}</span>
+                    </div>
+                  </div>
+
+                  
+                  @if (expandedFeedbackId === fb.id) {
+                    <div class="feedback-card__details">
+                      <div class="details-section">
+                        <h5>Scientific Quality & Reliability</h5>
+                        <div class="details-grid">
+                          <div class="detail-item">
+                            <label>Outputs Understandable</label>
+                            <span>{{ likertLabel(fb.outputsUnderstandable) }}</span>
+                          </div>
+                          <div class="detail-item">
+                            <label>Statements Correct</label>
+                            <span>{{ likertLabel(fb.statementsCorrect) }}</span>
+                          </div>
+                          <div class="detail-item">
+                            <label>Logic Sound</label>
+                            <span>{{ likertLabel(fb.logicSound) }}</span>
+                          </div>
+                          <div class="detail-item">
+                            <label>Sources Identifiable</label>
+                            <span>{{ likertLabel(fb.sourcesIdentifiable) }}</span>
+                          </div>
+                        </div>
+                        @if (fb.incorrectClaims) {
+                          <div class="detail-text">
+                            <label>Incorrect Claims</label>
+                            <p>{{ fb.incorrectClaims }}</p>
+                          </div>
+                        }
+                        @if (fb.goodReasoningExample) {
+                          <div class="detail-text">
+                            <label>Good Reasoning Example</label>
+                            <p>{{ fb.goodReasoningExample }}</p>
+                          </div>
+                        }
+                        @if (fb.poorReasoningExample) {
+                          <div class="detail-text">
+                            <label>Poor Reasoning Example</label>
+                            <p>{{ fb.poorReasoningExample }}</p>
+                          </div>
+                        }
+                        @if (fb.additionalInfoDesired) {
+                          <div class="detail-text">
+                            <label>Additional Info Desired</label>
+                            <p>{{ fb.additionalInfoDesired }}</p>
+                          </div>
+                        }
+                        @if (fb.additionalTestingData) {
+                          <div class="detail-text">
+                            <label>Additional Testing Data</label>
+                            <p>{{ fb.additionalTestingData }}</p>
+                          </div>
+                        }
+                      </div>
+
+                      <div class="details-section">
+                        <h5>Usability & Experience</h5>
+                        <div class="details-grid">
+                          <div class="detail-item">
+                            <label>Tool Familiarity</label>
+                            <span>{{ familiarityLabel(fb.toolFamiliarity) }}</span>
+                          </div>
+                          <div class="detail-item">
+                            <label>Tool Straightforward</label>
+                            <span>{{ likertLabel(fb.toolStraightforward) }}</span>
+                          </div>
+                          <div class="detail-item">
+                            <label>Would Use Again</label>
+                            <span>{{ likertLabel(fb.wouldUseAgain) }}</span>
+                          </div>
+                        </div>
+                        @if (fb.experienceStandout) {
+                          <div class="detail-text">
+                            <label>Experience Standout</label>
+                            <p>{{ fb.experienceStandout }}</p>
+                          </div>
+                        }
+                      </div>
+
+                      <div class="details-section">
+                        <h5>User Context</h5>
+                        <div class="details-grid">
+                          <div class="detail-item">
+                            <label>Affiliation</label>
+                            <span>{{ fb.affiliation ?? '-' }}</span>
+                          </div>
+                        </div>
+                        @if (fb.toolComparison) {
+                          <div class="detail-text">
+                            <label>Tool Comparison</label>
+                            <p>{{ fb.toolComparison }}</p>
+                          </div>
+                        }
+                        @if (fb.additionalFeatures) {
+                          <div class="detail-text">
+                            <label>Additional Features</label>
+                            <p>{{ fb.additionalFeatures }}</p>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+
+            @if (feedbackTotalPages > 1) {
+              <div class="pagination">
+                <button
+                  class="pagination__btn"
+                  [disabled]="feedbackPage === 1"
+                  (click)="feedbackGoToPage(feedbackPage - 1)"
+                  title="Previous page"
+                >
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+                @for (p of getFeedbackPageNumbers(); track p) {
+                  <button
+                    class="pagination__btn"
+                    [class.pagination__btn--active]="p === feedbackPage"
+                    (click)="feedbackGoToPage(p)"
+                  >
+                    {{ p }}
+                  </button>
+                }
+                <button
+                  class="pagination__btn"
+                  [disabled]="feedbackPage === feedbackTotalPages"
+                  (click)="feedbackGoToPage(feedbackPage + 1)"
+                  title="Next page"
+                >
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    }
+
+  </main>
+
+  
+  @if (confirmOpen) {
+    <div class="modal-backdrop">
+      <div class="modal">
+        <div class="modal-header">
+          <i class="bi bi-exclamation-triangle modal-icon"></i>
+          <h3>Confirm Deletion</h3>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to delete <strong>{{ selectedToDelete?.email }}</strong>?</p>
+          <p class="modal-warning">This action cannot be undone.</p>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn--secondary" (click)="cancelDelete()" [disabled]="deleting">
+            Cancel
+          </button>
+          <button class="btn btn--danger" (click)="confirmDelete()" [disabled]="deleting">
+            <i class="bi bi-trash3"></i>
+            {{ deleting ? 'Deleting...' : 'Delete User' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

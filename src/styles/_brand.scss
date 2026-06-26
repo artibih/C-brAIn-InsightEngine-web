@@ -1,0 +1,331 @@
+
+
+@use "sass:color";
+
+$brand-navy: #1a1844;
+$brand-navy-dark: #1a1844;
+$brand-navy-darkest: #0f0e2a;
+
+
+$brand-accent: #da0149;
+$brand-accent-blue: #da0149;
+$brand-accent-light: #ffe0ea;
+$brand-maroon: #da0149;
+
+
+$brand-white: #ffffff;
+$brand-gray-50: #f9fafb;
+$brand-gray-100: #f3f4f6;
+$brand-gray-200: #e5e7eb;
+$brand-gray-300: #d1d5db;
+$brand-gray-400: #9ca3af;
+$brand-gray-500: #6b7280;
+$brand-gray-600: #4b5563;
+$brand-gray-700: #374151;
+$brand-gray-800: #1f2937;
+$brand-gray-900: #111827;
+
+
+$brand-success: #10b981;
+$brand-success-light: #ecfdf5;
+$brand-warning: #f59e0b;
+$brand-warning-light: #fffbeb;
+$brand-error: #ef4444;
+$brand-error-light: #fef2f2;
+$brand-info: #2ea3f2;
+$brand-info-light: #eff6ff;
+
+
+$brand-navy-lighter: color.adjust($brand-navy, $lightness: 8%);
+$brand-navy-lighter-6: color.adjust($brand-navy, $lightness: 6%);
+$brand-navy-darker: color.adjust($brand-navy, $lightness: -8%);
+$brand-accent-darker: color.adjust($brand-accent, $lightness: -8%);
+$brand-accent-darker-10: color.adjust($brand-accent, $lightness: -10%);
+$brand-error-darker: color.adjust($brand-error, $lightness: -8%);
+
+
+$font-heading: 'Source Sans Pro', 'Raleway', sans-serif;
+$font-body: 'Open Sans', 'Lato', Arial, sans-serif;
+$font-mono: 'Fira Code', 'Monaco', 'Consolas', monospace;
+
+
+$font-size-xs: 0.75rem;    
+$font-size-sm: 0.875rem;   
+$font-size-base: 1rem;     
+$font-size-lg: 1.125rem;   
+$font-size-xl: 1.25rem;    
+$font-size-2xl: 1.5rem;    
+$font-size-3xl: 1.875rem;  
+$font-size-4xl: 2.25rem;   
+
+
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+
+$spacing-1: 0.25rem;   
+$spacing-2: 0.5rem;    
+$spacing-3: 0.75rem;   
+$spacing-4: 1rem;      
+$spacing-5: 1.25rem;   
+$spacing-6: 1.5rem;    
+$spacing-8: 2rem;      
+$spacing-10: 2.5rem;   
+$spacing-12: 3rem;     
+
+
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$radius-xl: 20px;
+$radius-2xl: 24px;
+$radius-3xl: 32px;
+$radius-full: 9999px;
+
+
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+
+$transition-fast: 150ms ease;
+$transition-normal: 250ms ease;
+$transition-slow: 350ms ease;
+
+
+$header-height: 64px;
+$sidebar-width: 260px;
+$sidebar-collapsed-width: 64px;
+$right-panel-width: 320px;
+$input-bar-min-height: 64px;
+$input-bar-max-height: 200px;
+
+
+$z-dropdown: 100;
+$z-sticky: 200;
+$z-modal-backdrop: 300;
+$z-modal: 400;
+$z-toast: 500;
+$z-tooltip: 600;
+
+
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+$breakpoint-2xl: 1536px;
+
+
+:root {
+  
+  --color-primary: #{$brand-navy};
+  --color-primary-dark: #{$brand-navy-dark};
+  --color-accent: #{$brand-accent};
+  --color-accent-light: #{$brand-accent-light};
+  --color-secondary: #{$brand-accent};
+
+  
+  --btn-primary-bg: #{$brand-navy};
+  --btn-primary-hover: #{$brand-navy-lighter-6};
+  --btn-primary-shadow: 0 4px 12px rgba(26, 24, 68, 0.2);
+  --btn-outline-border: #{$brand-navy};
+  --btn-outline-text: #{$brand-navy};
+  --btn-outline-hover-bg: #{$brand-navy};
+  --accent-hover: #{$brand-accent-darker-10};
+  --focus-border: #{$brand-navy};
+  --focus-ring: 0 0 0 3px rgba(26, 24, 68, 0.08);
+  --input-focus-border: #{$brand-accent};
+  --input-focus-ring: 0 0 0 2px rgba(218, 1, 73, 0.1);
+  --selection-bg: rgba(218, 1, 73, 0.2);
+  --focus-visible-color: #{$brand-accent};
+
+  
+  --color-text-primary: #111111;
+  --color-text-secondary: #{$brand-gray-600};
+  --color-text-muted: #{$brand-gray-400};
+  --color-text-inverse: #{$brand-white};
+
+  
+  --color-bg-primary: #{$brand-white};
+  --color-bg-secondary: #{$brand-white};
+  --color-bg-tertiary: #{$brand-gray-50};
+
+  
+  --color-border: #{$brand-gray-200};
+  --color-border-hover: #{$brand-gray-300};
+
+  
+  --color-success: #{$brand-success};
+  --color-success-light: #{$brand-success-light};
+  --color-warning: #{$brand-warning};
+  --color-warning-light: #{$brand-warning-light};
+  --color-error: #{$brand-error};
+  --color-error-light: #{$brand-error-light};
+  --color-info: #{$brand-info};
+  --color-info-light: #{$brand-info-light};
+
+  
+  --font-heading: #{$font-heading};
+  --font-body: #{$font-body};
+  --font-mono: #{$font-mono};
+
+  
+  --color-primary-50: rgba(26, 24, 68, 0.5);
+  --color-primary-40: rgba(26, 24, 68, 0.4);
+  --color-primary-30: rgba(26, 24, 68, 0.3);
+  --color-primary-15: rgba(26, 24, 68, 0.15);
+  --color-primary-12: rgba(26, 24, 68, 0.12);
+  --color-primary-10: rgba(26, 24, 68, 0.1);
+  --color-primary-06: rgba(26, 24, 68, 0.06);
+  --color-primary-05: rgba(26, 24, 68, 0.05);
+  --color-accent-20: rgba(218, 1, 73, 0.2);
+  --color-accent-10: rgba(218, 1, 73, 0.1);
+  --color-accent-08: rgba(218, 1, 73, 0.08);
+  --color-accent-05: rgba(218, 1, 73, 0.05);
+
+  
+  --shadow-sm: #{$shadow-sm};
+  --shadow-md: #{$shadow-md};
+  --shadow-lg: #{$shadow-lg};
+
+  
+  --radius-sm: #{$radius-sm};
+  --radius-md: #{$radius-md};
+  --radius-lg: #{$radius-lg};
+  --radius-xl: #{$radius-xl};
+  --radius-2xl: #{$radius-2xl};
+}
+
+[data-theme="insightengine"] {
+  --color-primary: #2A6CF6;
+  --color-primary-dark: #0B1F3A;
+  --color-accent: #4FC3F7;
+  --color-accent-light: #e1f5fe;
+  --color-secondary: #4FC3F7;
+
+  --btn-primary-bg: #2A6CF6;
+  --btn-primary-hover: #3d7af7;
+  --btn-primary-shadow: 0 4px 12px rgba(42, 108, 246, 0.25);
+  --btn-outline-border: #2A6CF6;
+  --btn-outline-text: #2A6CF6;
+  --btn-outline-hover-bg: #2A6CF6;
+  --accent-hover: #1a5cd4;
+  --focus-border: #2A6CF6;
+  --focus-ring: 0 0 0 3px rgba(42, 108, 246, 0.12);
+  --input-focus-border: #4FC3F7;
+  --input-focus-ring: 0 0 0 2px rgba(79, 195, 247, 0.15);
+  --selection-bg: rgba(42, 108, 246, 0.2);
+  --focus-visible-color: #2A6CF6;
+
+  
+  --color-primary-50: rgba(42, 108, 246, 0.5);
+  --color-primary-40: rgba(42, 108, 246, 0.4);
+  --color-primary-30: rgba(42, 108, 246, 0.3);
+  --color-primary-15: rgba(42, 108, 246, 0.15);
+  --color-primary-12: rgba(42, 108, 246, 0.12);
+  --color-primary-10: rgba(42, 108, 246, 0.1);
+  --color-primary-06: rgba(42, 108, 246, 0.06);
+  --color-primary-05: rgba(42, 108, 246, 0.05);
+  --color-accent-20: rgba(79, 195, 247, 0.2);
+  --color-accent-10: rgba(79, 195, 247, 0.1);
+  --color-accent-08: rgba(79, 195, 247, 0.08);
+  --color-accent-05: rgba(79, 195, 247, 0.05);
+}
+
+
+@mixin heading-style {
+  font-family: var(--font-heading);
+  font-weight: $font-weight-semibold;
+  color: var(--color-primary);
+}
+
+@mixin body-style {
+  font-family: var(--font-body);
+  font-weight: $font-weight-normal;
+  color: var(--color-text-primary);
+}
+
+@mixin button-primary {
+  background: var(--btn-primary-bg);
+  color: $brand-white;
+  border: none;
+  border-radius: $radius-md;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: var(--btn-primary-hover);
+    box-shadow: $shadow-sm;
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+@mixin button-secondary {
+  background: $brand-white;
+  color: var(--color-primary);
+  border: 1px solid $brand-gray-200;
+  border-radius: $radius-md;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: $brand-gray-50;
+    border-color: $brand-gray-300;
+  }
+}
+
+@mixin button-accent {
+  background: var(--color-accent);
+  color: $brand-white;
+  border: none;
+  border-radius: $radius-md;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: var(--accent-hover);
+    box-shadow: $shadow-sm;
+  }
+}
+
+@mixin card {
+  background: $brand-white;
+  border: 1px solid $brand-gray-200;
+  border-radius: $radius-lg;
+  box-shadow: none;
+}
+
+@mixin input-style {
+  background: $brand-white;
+  border: 1px solid $brand-gray-200;
+  border-radius: $radius-md;
+  padding: $spacing-3 $spacing-4;
+  font-family: var(--font-body);
+  font-size: $font-size-sm;
+  color: var(--color-text-primary);
+  transition: border-color $transition-fast, box-shadow $transition-fast;
+
+  &:focus {
+    outline: none;
+    border-color: var(--input-focus-border);
+    box-shadow: var(--input-focus-ring);
+  }
+
+  &::placeholder {
+    color: $brand-gray-400;
+  }
+}

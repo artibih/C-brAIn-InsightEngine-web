@@ -1,0 +1,301 @@
+<div class="conversation__composer">
+  <div class="composer__inner">
+    @if (!hideAttach) {
+      <input
+        #fileInput
+        type="file"
+        class="composer__file-input"
+        multiple
+        [attr.accept]="accept"
+        (change)="onFilesSelected($event)"
+      />
+    }
+
+    <div class="composer__row composer__row--top">
+      <div
+        class="composer__input-dropzone"
+        (dragenter)="hideAttach ? null : onDragEnter($event)"
+        (dragover)="hideAttach ? null : onDragOver($event)"
+        (dragleave)="hideAttach ? null : onDragLeave($event)"
+        (drop)="hideAttach ? null : onDrop($event)"
+        (paste)="hideAttach ? null : onPaste($event)"
+      >
+        @if (isDragActive) {
+          <div class="composer__drop-overlay">
+            <div class="composer__drop-overlay__box">Drop files to attach</div>
+          </div>
+        }
+
+        <tp-input
+          class="composer__input-wrapper"
+          [placeholder]="placeholder"
+          [maxRows]="promptText.length > 300 ? 18 : 6"
+          [value]="promptText"
+          (inputChange)="onPromptInput($event)"
+          (send)="onSend($event)"
+          [loading]="isSending || uploadingFiles.length > 0"
+        ></tp-input>
+      </div>
+    </div>
+    <div class="composer__row composer__row--bottom">
+      @if (!hideAttach) {
+        
+        <button
+          type="button"
+          class="composer__attach-btn"
+          (click)="onAttachFiles()"
+          [disabled]="uploadingFiles.length > 0"
+          title="Attach files"
+        >
+          <i class="bi bi-plus-lg"></i>
+        </button>
+      }
+
+      
+      @if (promptText.trim().length > 0) {
+        <button
+          type="button"
+          class="composer__refine-btn"
+          [disabled]="isRefining || isSending"
+          (click)="onRefineQuery()"
+          title="Refine query with AI"
+        >
+          @if (isRefining) {
+            <span class="composer__refine-spinner" aria-hidden="true"></span>
+            <span>Refining…</span>
+          } @else {
+            <i class="bi bi-magic"></i>
+            <span>Refine</span>
+          }
+        </button>
+      }
+
+      
+      @if (activeModeName) {
+        <div class="composer__mode-dropdown">
+          <button
+            type="button"
+            class="composer__mode-trigger"
+            [disabled]="modeDisabled"
+            (click)="toggleModeDropdown()"
+          >
+            <i class="bi" [ngClass]="activeModeIcon"></i>
+            <span>{{ activeModeName }}</span>
+            @if (!modeDisabled) {
+              <i
+                class="bi bi-chevron-down composer__mode-chevron"
+                [class.composer__mode-chevron--open]="isModeDropdownOpen"
+              ></i>
+            }
+          </button>
+          @if (isModeDropdownOpen) {
+            <div class="composer__mode-menu">
+              @for (mode of modeOptions; track mode) {
+                <button
+                  type="button"
+                  class="composer__mode-option"
+                  [class.composer__mode-option--active]="
+                    mode.name === activeModeName
+                  "
+                  [class.composer__mode-option--disabled]="mode.disabled"
+                  [disabled]="mode.disabled"
+                  (click)="selectMode(mode.id)"
+                >
+                  <i class="bi" [ngClass]="mode.icon"></i>
+                  <span>{{ mode.name }}</span>
+                  @if (mode.disabled) {
+                    <span class="composer__mode-coming-soon">Coming Soon</span>
+                  }
+                  @if (mode.name === activeModeName) {
+                    <i class="bi bi-check2 composer__mode-check"></i>
+                  }
+                </button>
+              }
+            </div>
+          }
+          
+          @if (isModeDropdownOpen) {
+            <div
+              class="composer__mode-backdrop"
+              (click)="closeModeDropdown()"
+            ></div>
+          }
+        </div>
+      }
+
+      
+      @if (showPrebuiltWorkflows) {
+        <div class="composer__prebuilt-dropdown">
+          <button
+            type="button"
+            class="composer__prebuilt-trigger"
+            (click)="togglePrebuiltDropdown()"
+            [attr.aria-expanded]="isPrebuiltDropdownOpen"
+            aria-haspopup="listbox"
+            title="Use a pre-built workflow"
+          >
+            <i class="bi bi-lightning-charge-fill"></i>
+            <span>Pre-built workflow</span>
+            <i
+              class="bi bi-chevron-down composer__prebuilt-chevron"
+              [class.composer__prebuilt-chevron--open]="isPrebuiltDropdownOpen"
+            ></i>
+          </button>
+
+          @if (isPrebuiltDropdownOpen) {
+            <div class="composer__prebuilt-menu" role="listbox">
+              <div class="composer__prebuilt-menu-header">
+                <i class="bi bi-lightning-charge-fill"></i>
+                <span>Pre-built workflows</span>
+              </div>
+
+              @if (prebuiltLoading) {
+                <div class="composer__prebuilt-state">
+                  <i class="bi bi-arrow-repeat composer__prebuilt-spinner"></i>
+                  <span>Loading workflows…</span>
+                </div>
+              } @else if (prebuiltLoadError) {
+                <div
+                  class="composer__prebuilt-state composer__prebuilt-state--error"
+                >
+                  <i class="bi bi-exclamation-triangle"></i>
+                  <span>{{ prebuiltLoadError }}</span>
+                </div>
+              } @else if (prebuiltWorkflows.length === 0) {
+                <div class="composer__prebuilt-state">
+                  <i class="bi bi-inbox"></i>
+                  <span>No pre-built workflows yet.</span>
+                </div>
+              } @else {
+                <ul class="composer__prebuilt-list" role="list">
+                  @for (wf of prebuiltWorkflows; track wf.id) {
+                    <li>
+                      <button
+                        type="button"
+                        class="composer__prebuilt-option"
+                        [class.composer__prebuilt-option--active]="
+                          wf.id === activePrebuiltId
+                        "
+                        (click)="selectPrebuiltWorkflow(wf)"
+                        role="option"
+                        [attr.aria-selected]="wf.id === activePrebuiltId"
+                      >
+                        <span class="composer__prebuilt-option-icon">
+                          <i class="bi bi-graph-down"></i>
+                        </span>
+                        <span class="composer__prebuilt-option-body">
+                          <span class="composer__prebuilt-option-title">{{
+                            prebuiltTitle(wf)
+                          }}</span>
+                          @if (wf.note) {
+                            <span class="composer__prebuilt-option-note">{{
+                              wf.note
+                            }}</span>
+                          }
+                          @if (prebuiltFileName(wf); as fileName) {
+                            <span class="composer__prebuilt-option-file">
+                              <i class="bi bi-paperclip"></i>
+                              <span [title]="fileName">{{ fileName }}</span>
+                            </span>
+                          }
+                        </span>
+                        @if (wf.id === activePrebuiltId) {
+                          <i
+                            class="bi bi-check2 composer__prebuilt-option-check"
+                          ></i>
+                        }
+                      </button>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+
+            <div
+              class="composer__prebuilt-backdrop"
+              (click)="closePrebuiltDropdown()"
+            ></div>
+          }
+        </div>
+      }
+
+      
+      @if (showReviewerParams) {
+        <tp-reviewer-params-selector
+          class="composer__reviewer-params"
+          [disabled]="isSending"
+        ></tp-reviewer-params-selector>
+      }
+
+      
+      @if (showLlmSelector) {
+        <tp-llm-selector
+          class="composer__llm-selector"
+          [disabled]="isSending"
+          [locked]="lockLlmSelector"
+        ></tp-llm-selector>
+      }
+    </div>
+
+    
+    @if (uploadingFiles.length > 0) {
+      <div class="composer__attachments">
+        <div class="attachments-grid">
+          @for (file of uploadingFiles; track file) {
+            <div class="attachment-card attachment-card--uploading">
+              <div class="attachment-card__icon">
+                <i class="bi bi-arrow-repeat"></i>
+              </div>
+              <div class="attachment-card__info">
+                <div class="attachment-card__name" [title]="file.name">
+                  {{ file.name }}
+                </div>
+                <div class="attachment-card__meta">Uploading...</div>
+              </div>
+              <button type="button" class="attachment-card__remove" disabled>
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    
+    @if (attachments.length > 0) {
+      <div class="composer__attachments">
+        <div class="attachments-grid">
+          @for (file of attachments; track file) {
+            <div class="attachment-card">
+              <div class="attachment-card__icon">
+                <i class="bi" [ngClass]="fileIcon(file.name)"></i>
+              </div>
+              <div class="attachment-card__info">
+                <div class="attachment-card__name" [title]="file.name">
+                  {{ file.name }}
+                </div>
+                @if (file.size > 0) {
+                  <div class="attachment-card__meta">
+                    {{ formatFileSize(file.size) }}
+                  </div>
+                }
+              </div>
+              <button
+                type="button"
+                class="attachment-card__remove"
+                [disabled]="!file.fileId"
+                (click)="removeAttachment.emit(file.id)"
+              >
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <p class="composer__hint">
+      AI Workspace can make mistakes. Please double-check responses.
+    </p>
+  </div>
+</div>

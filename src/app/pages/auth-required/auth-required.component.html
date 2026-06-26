@@ -1,0 +1,30 @@
+<div class="auth-required-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-logo-block">
+        <img
+          [src]="theme.logoPath()"
+          [alt]="theme.appName()"
+          class="auth-logo"
+        />
+        <h1>{{ theme.appName() }}</h1>
+      </div>
+
+      <h2>Authentication Required</h2>
+      <p class="auth-desc">
+        Please sign in to access your AI conversations and conversation history.
+      </p>
+    </div>
+
+    <div class="auth-buttons">
+      <button class="auth-submit" type="button" (click)="onSignIn()">
+        <i class="bi bi-box-arrow-in-right"></i>
+        <span>Sign In</span>
+      </button>
+      <button class="auth-register" type="button" (click)="onRegister()">
+        <i class="bi bi-person-plus"></i>
+        <span>Request Access</span>
+      </button>
+    </div>
+  </div>
+</div>

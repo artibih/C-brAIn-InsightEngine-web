@@ -1,0 +1,76 @@
+<div class="eula-overlay" [class.eula-overlay--gate]="mode === 'gate'">
+  <div
+    class="eula-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="eula-dialog-title"
+  >
+    <header class="eula-dialog__header">
+      <img
+        [src]="theme.logoPath()"
+        [alt]="theme.appName()"
+        class="eula-dialog__logo"
+      />
+      <h2 id="eula-dialog-title" class="eula-dialog__title">{{ docTitle }}</h2>
+      <p class="eula-dialog__subtitle">{{ docSubtitle }}</p>
+    </header>
+
+    <div class="eula-dialog__body" tabindex="0">
+      @for (block of content; track $index) {
+        @switch (block.kind) {
+          @case ('h2') {
+            <h3 class="eula-block eula-block--h2">{{ block.text }}</h3>
+          }
+          @case ('h3') {
+            <h4 class="eula-block eula-block--h3">{{ block.text }}</h4>
+          }
+          @case ('p') {
+            <p class="eula-block eula-block--p">{{ block.text }}</p>
+          }
+          @case ('ul') {
+            <ul class="eula-block eula-block--ul">
+              @for (item of block.items ?? []; track $index) {
+                <li>{{ item }}</li>
+              }
+            </ul>
+          }
+        }
+      }
+    </div>
+
+    <div class="eula-dialog__acks">
+      @for (ack of acknowledgments; track ack.key) {
+        <label class="eula-ack" [class.eula-ack--checked]="isChecked(ack.key)">
+          <input
+            type="checkbox"
+            class="eula-ack__input"
+            [checked]="isChecked(ack.key)"
+            [disabled]="loading"
+            (change)="toggle(ack.key)"
+          />
+          <span class="eula-ack__box" aria-hidden="true"></span>
+          <span class="eula-ack__label">{{ ack.label }}</span>
+        </label>
+      }
+    </div>
+
+    <footer class="eula-dialog__footer">
+      <button
+        type="button"
+        class="eula-btn eula-btn--ghost"
+        [disabled]="loading"
+        (click)="onDecline()"
+      >
+        {{ mode === 'gate' ? 'Decline & sign out' : 'Cancel' }}
+      </button>
+      <button
+        type="button"
+        class="eula-btn eula-btn--primary"
+        [disabled]="!allChecked() || loading"
+        (click)="onAccept()"
+      >
+        {{ loading ? 'Saving…' : 'I Agree' }}
+      </button>
+    </footer>
+  </div>
+</div>
